@@ -5,5 +5,6 @@ public enum Flag {
     NAME,
     SURNAME,
     GROUP,
-    TEST
+    TEST,
+    CHECK
 }

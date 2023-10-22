@@ -22,6 +22,9 @@ public class Bot extends TelegramLongPollingBot {
     private final UserRepository repository;
     private static Flag flag;
     private UserDto userDto;
+    private TestData testData;
+    private TestSession testSession;
+    private SimpleTest simpleTest;
 
     @Override
     public String getBotUsername() {
@@ -40,7 +43,7 @@ public class Bot extends TelegramLongPollingBot {
             if (update.getMessage().getText().equals("/start")) {
                 flag = START;
                 chatId = update.getMessage().getChatId();
-                sendTextMessage(chatId, "Вам нужно зарегестрироваться");
+                sendTextMessage(chatId, "Вам нужно зарегистрироваться");
                 return;
             }
         }
@@ -71,13 +74,37 @@ public class Bot extends TelegramLongPollingBot {
                     userDto.setGroup(text);
                     repository.save(UserMapper.toUser(userDto));
                     sendTextMessage(chatId, "Сохранено");
-                    flag = TEST;
+                    flag = CHECK;
                     break;
-                case TEST:
+                case CHECK:
                     sendTextMessage(chatId, userDto.toString());
                     sendTextMessage(chatId, "Выберите тест");
+                    testData.setQuestions(simpleTest.getQuestions());
+                    testData.setCorrectAnswers(simpleTest.getCorrectAnswers());
+                    flag = TEST;
                     break;
                 //TODO flag = register
+                case TEST:
+                    if(testSession.getCurrentQuestion() <= testData.getQuestions().size()) {
+                        if (testSession.getCurrentQuestion() != 0) {
+                            testSession.userAnswers.add(text);
+                        }
+                            testSession.currentQuestion++;
+                        if (testSession.currentQuestion <= testData.getQuestions().size()) {
+                            sendTextMessage(chatId, testData.getQuestions().get(testSession.getCurrentQuestion() - 1));
+                        }
+                        return;
+                    }
+//                    testSession.currentQuestion = 0;
+                    int questions = testData.getQuestions().size();
+                    int correctQuestions = 0;
+                    for (int i = 0; i < questions; i++) {
+                        if (testSession.userAnswers.get(i).equals(testData.getCorrectAnswers().get(i))) {
+                            correctQuestions++;
+                        }
+                    }
+                    sendTextMessage(chatId, "Вы ответили правильно на " + correctQuestions + " из " + questions);
+                    flag = START;
                 default:
                     sendWelcomeMessage(chatId);
                     break;
