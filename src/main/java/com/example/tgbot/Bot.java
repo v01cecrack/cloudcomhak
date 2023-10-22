@@ -54,8 +54,16 @@ public class Bot extends TelegramLongPollingBot {
                     return;
                 }
                 else {
-                    flag = CHECK;
+                    sendWelcomeMessage(chatId);
+//                    flag = CHECK;
                 }
+            }
+        }
+        if (update.hasCallbackQuery()) {
+            chatId = update.getCallbackQuery().getMessage().getChatId();
+            //TODO CHECK
+            if (update.getCallbackQuery().getData().equals("tests")) {
+                sendTextMessage(chatId, "Список доступных тестов:");
             }
         }
         if (update.getMessage().hasText()) {
@@ -120,6 +128,7 @@ public class Bot extends TelegramLongPollingBot {
                     }
                     sendTextMessage(chatId, "Вы ответили правильно на " + correctQuestions + " из " + questions);
                     flag = START;
+                    sendWelcomeMessage(chatId);
                 default:
                     sendWelcomeMessage(chatId);
                     break;
@@ -155,7 +164,7 @@ public class Bot extends TelegramLongPollingBot {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<InlineKeyboardButton> row1 = new ArrayList<>();
-        row1.add(InlineKeyboardButton.builder().text("Начать").callbackData("start").build());
+        row1.add(InlineKeyboardButton.builder().text("Выбрать тест").callbackData("tests").build());
         keyboard.add(row1);
         inlineKeyboardMarkup.setKeyboard(keyboard);
         return inlineKeyboardMarkup;
@@ -165,7 +174,7 @@ public class Bot extends TelegramLongPollingBot {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboard = new ArrayList<>();
         KeyboardRow row = new KeyboardRow();
-        row.add(new KeyboardButton("Старт"));
+        row.add(new KeyboardButton("Начать регистрацию"));
         keyboard.add(row);
         keyboardMarkup.setKeyboard(keyboard);
         keyboardMarkup.setResizeKeyboard(true);
