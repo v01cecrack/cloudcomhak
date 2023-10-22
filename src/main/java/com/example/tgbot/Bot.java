@@ -7,7 +7,10 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
@@ -41,10 +44,16 @@ public class Bot extends TelegramLongPollingBot {
         long chatId;
         if (update.hasMessage()) {
             if (update.getMessage().getText().equals("/start")) {
-                flag = START;
                 chatId = update.getMessage().getChatId();
-                sendTextMessage(chatId, "Вам нужно зарегистрироваться");
-                return;
+                if(repository.findById(chatId).isEmpty()) {
+                    sendTextMessage(chatId, "Вам нужно зарегистрироваться");
+                    flag = START;
+                    startMessage(chatId);
+                    return;
+                }
+                else {
+                    flag = CHECK;
+                }
             }
         }
         if (update.getMessage().hasText()) {
@@ -77,7 +86,7 @@ public class Bot extends TelegramLongPollingBot {
                     flag = CHECK;
                     break;
                 case CHECK:
-                    sendTextMessage(chatId, userDto.toString());
+                    sendTextMessage(chatId, userDto.toString()); //TODO delete this
                     sendTextMessage(chatId, "Выберите тест");
                     testData.setQuestions(simpleTest.getQuestions());
                     testData.setCorrectAnswers(simpleTest.getCorrectAnswers());
@@ -144,6 +153,26 @@ public class Bot extends TelegramLongPollingBot {
         keyboard.add(row1);
         inlineKeyboardMarkup.setKeyboard(keyboard);
         return inlineKeyboardMarkup;
+    }
+
+    private void startMessage(long chatId) {
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboard = new ArrayList<>();
+        KeyboardRow row = new KeyboardRow();
+        row.add(new KeyboardButton("Старт"));
+        keyboard.add(row);
+        keyboardMarkup.setKeyboard(keyboard);
+        keyboardMarkup.setResizeKeyboard(true);
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        String text = "Старт";
+        message.setText(String.format("Нажмите \"%s\", чтобы начать", text));
+        message.setReplyMarkup(keyboardMarkup);
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
     }
 
 

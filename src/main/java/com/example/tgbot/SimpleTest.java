@@ -17,7 +17,7 @@ public class SimpleTest {
     List<String> correctAnswers = List.of(
             "синего",
             "пять",
-            "Сергей",
+            "сергей",
             "один"
     );
 }
