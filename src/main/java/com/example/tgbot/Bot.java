@@ -15,6 +15,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.example.tgbot.Flag.*;
 
@@ -23,6 +24,7 @@ import static com.example.tgbot.Flag.*;
 @AllArgsConstructor
 public class Bot extends TelegramLongPollingBot {
     private final UserRepository repository;
+    private final GroupRepository groupRepository;
     private static Flag flag;
     private UserDto userDto;
     private TestData testData;
@@ -75,7 +77,11 @@ public class Bot extends TelegramLongPollingBot {
 //                    String surname = update.getMessage().getText();
                     userDto.setSurname(text);
                     flag = GROUP;
+                    List<Group> groups = groupRepository.findAll();
+                    List<String> groupsNames = groups.stream().map(Group::getName).collect(Collectors.toList());
+                    sendTextMessage(chatId, groupsNames.toString());
                     sendTextMessage(chatId, "Введите вашу группу");
+
                     break;
                 case GROUP:
                     //TODO тут кнопки с доступными группами
