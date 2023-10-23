@@ -1,4 +1,4 @@
-package com.example.tgbot;
+package com.example.tgbot.user;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

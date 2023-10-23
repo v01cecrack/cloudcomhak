@@ -1,4 +1,4 @@
-package com.example.tgbot;
+package com.example.tgbot.group;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

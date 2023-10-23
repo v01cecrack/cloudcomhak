@@ -1,4 +1,4 @@
-package com.example.tgbot;
+package com.example.tgbot.user;
 
 public class UserMapper {
     public static User toUser(UserDto userDto) {

@@ -1,5 +1,12 @@
 package com.example.tgbot;
 
+import com.example.tgbot.group.Group;
+import com.example.tgbot.group.GroupRepository;
+import com.example.tgbot.question.Question;
+import com.example.tgbot.testquestion.TestQuestionRepository;
+import com.example.tgbot.user.UserDto;
+import com.example.tgbot.user.UserMapper;
+import com.example.tgbot.user.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +32,7 @@ import static com.example.tgbot.Flag.*;
 public class Bot extends TelegramLongPollingBot {
     private final UserRepository repository;
     private final GroupRepository groupRepository;
+    private final TestQuestionRepository testQuestionRepository;
     private static Flag flag;
     private UserDto userDto;
     private TestData testData;
@@ -47,13 +55,12 @@ public class Bot extends TelegramLongPollingBot {
         if (update.hasMessage()) {
             if (update.getMessage().getText().equals("/start")) {
                 chatId = update.getMessage().getChatId();
-                if(repository.findById(chatId).isEmpty()) {
+                if (repository.findById(chatId).isEmpty()) {
                     sendTextMessage(chatId, "Вам нужно зарегистрироваться");
                     flag = START;
                     startMessage(chatId);
                     return;
-                }
-                else {
+                } else {
                     sendWelcomeMessage(chatId);
 //                    flag = CHECK;
                 }
@@ -63,78 +70,92 @@ public class Bot extends TelegramLongPollingBot {
             chatId = update.getCallbackQuery().getMessage().getChatId();
             //TODO CHECK
             if (update.getCallbackQuery().getData().equals("tests")) {
-                sendTextMessage(chatId, "Список доступных тестов:");
+                sendTextMessage(chatId, "Список доступных тестов: \n ТУТ ТИПО БУДУТ КНОПКИ С НАЗВАНИЯМИ ТЕСТОВ");
+                flag = CHECK;
+//                return;
             }
         }
-        if (update.getMessage().hasText()) {
-            String text = update.getMessage().getText();
-            chatId = update.getMessage().getChatId();
-            switch (flag) {
-                case START:
-                    userDto.setChatId(chatId);
-                    flag = NAME;
-                    sendTextMessage(chatId, "Введите ваше имя");
-                    break;
-                case NAME:
+//        if (update.getMessage().hasText()) {
+        String text = update.getMessage().getText();
+        chatId = update.getMessage().getChatId();
+        switch (flag) {
+            case START:
+                userDto.setChatId(chatId);
+                flag = NAME;
+                sendTextMessage(chatId, "Введите ваше имя");
+                break;
+            case NAME:
 //                    String name = update.getMessage().getText();
-                    userDto.setName(text);
-                    flag = SURNAME;
-                    sendTextMessage(chatId, "Введите вашу фамилию");
-                    break;
-                case SURNAME:
+                userDto.setName(text);
+                flag = SURNAME;
+                sendTextMessage(chatId, "Введите вашу фамилию");
+                break;
+            case SURNAME:
 //                    String surname = update.getMessage().getText();
-                    userDto.setSurname(text);
-                    flag = GROUP;
-                    List<Group> groups = groupRepository.findAll();
-                    List<String> groupsNames = groups.stream().map(Group::getName).collect(Collectors.toList());
-                    sendTextMessage(chatId, groupsNames.toString());
-                    sendTextMessage(chatId, "Введите вашу группу");
-
-                    break;
-                case GROUP:
-                    //TODO тут кнопки с доступными группами
+                userDto.setSurname(text);
+                flag = GROUP;
+                List<Group> groups = groupRepository.findAll();
+                List<String> groupsNames = groups.stream().map(Group::getName).collect(Collectors.toList());
+                sendTextMessage(chatId, groupsNames.toString());
+                sendTextMessage(chatId, "Введите вашу группу");
+                break;
+            case GROUP:
+                //TODO тут кнопки с доступными группами
 //                    String group = update.getMessage().getText();
-                    userDto.setGroup(text);
-                    repository.save(UserMapper.toUser(userDto));
-                    sendTextMessage(chatId, "Сохранено");
-                    flag = CHECK;
-                    break;
-                case CHECK:
-                    sendTextMessage(chatId, userDto.toString()); //TODO delete this
-                    sendTextMessage(chatId, "Выберите тест");
-                    testData.setQuestions(simpleTest.getQuestions());
-                    testData.setCorrectAnswers(simpleTest.getCorrectAnswers());
-                    flag = TEST;
-                    break;
-                //TODO flag = register
-                case TEST:
-                    if(testSession.getCurrentQuestion() <= testData.getQuestions().size()) {
-                        if (testSession.getCurrentQuestion() != 0) {
-                            testSession.userAnswers.add(text);
-                        }
-                            testSession.currentQuestion++;
-                        if (testSession.currentQuestion <= testData.getQuestions().size()) {
-                            sendTextMessage(chatId, testData.getQuestions().get(testSession.getCurrentQuestion() - 1));
-                        }
-                        return;
+                userDto.setGroup(text);
+                repository.save(UserMapper.toUser(userDto));
+                sendTextMessage(chatId, "Сохранено");
+//                flag = CHECK;
+                sendWelcomeMessage(chatId);
+                break;
+            case CHECK:
+                sendTextMessage(chatId, userDto.toString()); //TODO delete this
+//                sendTextMessage(chatId, "Выберите тест");
+                //TODO Подгружаем тест из базы и сохраняем в testData
+                List<Question> questionList = testQuestionRepository.findQuestionsByTestId(1L);
+
+                List<String> questions = questionList.stream()
+                        .map(Question::getQuestionText)
+                        .collect(Collectors.toList());
+
+                List<String> answers = questionList.stream()
+                        .map(Question::getQuestionAnswer)
+                        .collect(Collectors.toList());
+
+                testData.setQuestions(questions);
+                testData.setCorrectAnswers(answers);
+                flag = TEST;
+                break;
+            //TODO flag = register
+            case TEST:
+                if (testSession.getCurrentQuestion() <= testData.getQuestions().size()) {
+                    if (testSession.getCurrentQuestion() != 0) {
+                        testSession.userAnswers.add(text);
                     }
+                    testSession.currentQuestion++;
+                    if (testSession.currentQuestion <= testData.getQuestions().size()) {
+                        sendTextMessage(chatId, testData.getQuestions().get(testSession.getCurrentQuestion() - 1));
+                    return;
+                    }
+                }
 //                    testSession.currentQuestion = 0;
-                    int questions = testData.getQuestions().size();
-                    int correctQuestions = 0;
-                    for (int i = 0; i < questions; i++) {
-                        if (testSession.userAnswers.get(i).equals(testData.getCorrectAnswers().get(i))) {
-                            correctQuestions++;
-                        }
+                int questionsCount = testData.getQuestions().size();
+                int correctQuestions = 0;
+                for (int i = 0; i < questionsCount; i++) {
+                    if (testSession.userAnswers.get(i).equals(testData.getCorrectAnswers().get(i))) {
+                        correctQuestions++;
                     }
-                    sendTextMessage(chatId, "Вы ответили правильно на " + correctQuestions + " из " + questions);
-                    flag = START;
-                    sendWelcomeMessage(chatId);
-                default:
-                    sendWelcomeMessage(chatId);
-                    break;
-            }
+                }
+                sendTextMessage(chatId, "Вы ответили правильно на " + correctQuestions + " из " + questionsCount);
+                flag = START;
+                sendWelcomeMessage(chatId);
+            default:
+                sendWelcomeMessage(chatId);
+                break;
         }
     }
+
+//}
 
     private void sendTextMessage(Long chatId, String text) {
         SendMessage message = new SendMessage(chatId.toString(), text);

@@ -1,5 +1,6 @@
-package com.example.tgbot;
+package com.example.tgbot.group;
 
+import com.example.tgbot.user.User;
 import lombok.*;
 
 import javax.persistence.*;
