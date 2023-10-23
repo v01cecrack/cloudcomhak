@@ -3,6 +3,9 @@ package com.example.tgbot;
 import com.example.tgbot.group.Group;
 import com.example.tgbot.group.GroupRepository;
 import com.example.tgbot.question.Question;
+import com.example.tgbot.test.Test;
+import com.example.tgbot.testgroup.TestGroup;
+import com.example.tgbot.testgroup.TestGroupRepository;
 import com.example.tgbot.testquestion.TestQuestionRepository;
 import com.example.tgbot.user.UserDto;
 import com.example.tgbot.user.UserMapper;
@@ -33,6 +36,7 @@ public class Bot extends TelegramLongPollingBot {
     private final UserRepository repository;
     private final GroupRepository groupRepository;
     private final TestQuestionRepository testQuestionRepository;
+    private final TestGroupRepository testGroupRepository;
     private static Flag flag;
     private UserDto userDto;
     private TestData testData;
@@ -71,6 +75,10 @@ public class Bot extends TelegramLongPollingBot {
             //TODO CHECK
             if (update.getCallbackQuery().getData().equals("tests")) {
                 sendTextMessage(chatId, "Список доступных тестов: \n ТУТ ТИПО БУДУТ КНОПКИ С НАЗВАНИЯМИ ТЕСТОВ");
+                List<TestGroup> testGroup = testGroupRepository.findTestGroupsByGroup_Name(userDto.getGroup());
+                List<Test> testList = testGroup.stream().map(TestGroup::getTest).collect(Collectors.toList());
+                List<String> testNames = testList.stream().map(Test::getTestName).collect(Collectors.toList());
+                sendTextMessage(chatId,testNames.toString());
                 flag = CHECK;
 //                return;
             }
