@@ -33,6 +33,7 @@ import static com.example.tgbot.Flag.*;
 @Service
 @AllArgsConstructor
 public class Bot extends TelegramLongPollingBot {
+    private final BotConfig botConfig;
     private final UserRepository repository;
     private final GroupRepository groupRepository;
     private final TestQuestionRepository testQuestionRepository;
@@ -41,16 +42,15 @@ public class Bot extends TelegramLongPollingBot {
     private UserDto userDto;
     private TestData testData;
     private TestSession testSession;
-    private SimpleTest simpleTest;
 
     @Override
     public String getBotUsername() {
-        return "v01cecrack_bot";
+        return botConfig.getBotName();
     }
 
     @Override
     public String getBotToken() {
-        return "6536901586:AAG0FL0rzEeJq-uJdVgRJO6I4KP85lh2lCk";
+        return botConfig.getToken();
     }
 
     @Override
