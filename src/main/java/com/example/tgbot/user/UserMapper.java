@@ -9,4 +9,11 @@ public class UserMapper {
                 .group(userDto.getGroup())
                 .build();
     }
+
+    public static UserDto toUserDto(User user) {
+        return UserDto.builder()
+                .chatId(user.getChatId())
+                .group(user.getGroup())
+                .build();
+    }
 }
