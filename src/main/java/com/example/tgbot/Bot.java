@@ -78,14 +78,16 @@ public class Bot extends TelegramLongPollingBot {
                 List<TestGroup> testGroup = testGroupRepository.findTestGroupsByGroup_Name(userDto.getGroup());
                 List<Test> testList = testGroup.stream().map(TestGroup::getTest).collect(Collectors.toList());
                 List<String> testNames = testList.stream().map(Test::getTestName).collect(Collectors.toList());
-                sendTextMessage(chatId,testNames.toString());
+                sendTextMessage(chatId, testNames.toString());
                 flag = CHECK;
-//                return;
+                return;
             }
         }
-//        if (update.getMessage().hasText()) {
+
+        if (update.getMessage().hasText()) {
         String text = update.getMessage().getText();
         chatId = update.getMessage().getChatId();
+
         switch (flag) {
             case START:
                 userDto.setChatId(chatId);
@@ -163,7 +165,7 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-//}
+}
 
     private void sendTextMessage(Long chatId, String text) {
         SendMessage message = new SendMessage(chatId.toString(), text);
