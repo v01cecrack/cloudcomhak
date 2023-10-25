@@ -92,6 +92,7 @@ public class Bot extends TelegramLongPollingBot {
             if (update.getCallbackQuery().getData().equals("tests")) {
                 userDto = UserMapper.toUserDto(repository.findById(chatId).orElseThrow(RuntimeException::new));
                 sendTextMessage(chatId, "Список доступных тестов: \n ТУТ ТИПО БУДУТ КНОПКИ С НАЗВАНИЯМИ ТЕСТОВ");
+                flag = CHECK;
                 List<TestGroup> testGroup = testGroupRepository.findTestGroupsByGroup_Name(userDto.getGroup());
                 List<Test> testList = testGroup.stream().map(TestGroup::getTest).collect(Collectors.toList());
                 List<String> testNames = testList.stream().map(Test::getTestName).collect(Collectors.toList());
@@ -100,26 +101,37 @@ public class Bot extends TelegramLongPollingBot {
             }
 
             //TODO загрузить тест по названию кнопки НУЖЕН ТЕСТ ID
-            String testName = update.getCallbackQuery().getData();
-            Test test = testRepository.findByTestName(testName);
-            testId = test.getTestId();
-            flag = CHECK;
-            //TODO Подгружаем тест из базы и сохраняем в testData
-            List<Question> questionList = testQuestionRepository.findQuestionsByTestId(testId);
+            if (flag == CHECK) {
+                String testName = update.getCallbackQuery().getData();
+                Test test = testRepository.findByTestName(testName);
+                testId = test.getTestId();
+//            flag = CHECK;
+                //TODO Подгружаем тест из базы и сохраняем в testData
+                List<Question> questionList = testQuestionRepository.findQuestionsByTestId(testId);
 
-            List<String> questions = questionList.stream()
-                    .map(Question::getQuestionText)
-                    .collect(Collectors.toList());
+                List<String> questions = questionList.stream()
+                        .map(Question::getQuestionText)
+                        .collect(Collectors.toList());
 
-            List<String> answers = questionList.stream()
-                    .map(Question::getQuestionAnswer)
-                    .collect(Collectors.toList());
+                List<String> answers = questionList.stream()
+                        .map(Question::getQuestionAnswer)
+                        .collect(Collectors.toList());
 
-            testData.setQuestions(questions);
-            testData.setCorrectAnswers(answers);
-            flag = TEST;
-            sendTextMessage(chatId, "Вы выбрали тест " + testName + " \n чтобы начать отправьте любой текст");
-            return;
+                testData.setQuestions(questions);
+                testData.setCorrectAnswers(answers);
+                flag = TEST;
+                sendTextMessage(chatId, "Вы выбрали тест " + testName + " \n чтобы начать отправьте любой текст");
+                return;
+            }
+
+            if (flag == GROUP) {
+                String groupName = update.getCallbackQuery().getData();
+                userDto.setGroup(groupName);
+                repository.save(UserMapper.toUser(userDto));
+                sendTextMessage(chatId, "Сохранено");
+                sendWelcomeMessage(chatId);
+                return;
+            }
         }
 
         if (update.getMessage().hasText()) {
@@ -142,14 +154,7 @@ public class Bot extends TelegramLongPollingBot {
                     flag = GROUP;
                     List<Group> groups = groupRepository.findAll();
                     List<String> groupsNames = groups.stream().map(Group::getName).collect(Collectors.toList());
-                    sendTextMessage(chatId, groupsNames.toString());
-                    sendTextMessage(chatId, "Введите вашу группу");
-                    break;
-                case GROUP:
-                    userDto.setGroup(text);
-                    repository.save(UserMapper.toUser(userDto));
-                    sendTextMessage(chatId, "Сохранено");
-                    sendWelcomeMessage(chatId);
+                    sendGroupButtons(chatId, groupsNames);
                     break;
                 case TEST:
                     if (testSession.getCurrentQuestion() <= testData.getQuestions().size()) {
@@ -263,5 +268,30 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
+    private InlineKeyboardMarkup groupButtons(List<String> groupNames) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        for (int i = 0; i < groupNames.size(); i++) {
+            List<InlineKeyboardButton> row = new ArrayList<>();
+            row.add(InlineKeyboardButton.builder().text(groupNames.get(i)).callbackData(groupNames.get(i)).build());
+            keyboard.add(row);
+            inlineKeyboardMarkup.setKeyboard(keyboard);
+        }
+        return inlineKeyboardMarkup;
+    }
+
+    private void sendGroupButtons(long chatId, List<String> groupNames) {
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText("Выберете свою группу:");
+        InlineKeyboardMarkup keyboardMarkup = groupButtons(groupNames);
+        message.setReplyMarkup(keyboardMarkup);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
