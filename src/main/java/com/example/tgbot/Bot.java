@@ -3,6 +3,8 @@ package com.example.tgbot;
 import com.example.tgbot.group.Group;
 import com.example.tgbot.group.GroupRepository;
 import com.example.tgbot.question.Question;
+import com.example.tgbot.result.Result;
+import com.example.tgbot.result.ResultRepository;
 import com.example.tgbot.test.Test;
 import com.example.tgbot.test.TestRepository;
 import com.example.tgbot.testgroup.TestGroup;
@@ -38,19 +40,21 @@ public class Bot extends TelegramLongPollingBot {
     private final TestQuestionRepository testQuestionRepository;
     private final TestGroupRepository testGroupRepository;
     private final TestRepository testRepository;
+    private final ResultRepository resultRepository;
     private static Flag flag;
     private UserDto userDto;
     private final TestData testData;
     private final TestSession testSession;
     private Long testId;
 
-    public Bot(BotConfig botConfig, UserRepository repository, GroupRepository groupRepository, TestQuestionRepository testQuestionRepository, TestGroupRepository testGroupRepository, TestRepository testRepository, UserDto userDto, TestData testData, TestSession testSession) {
+    public Bot(BotConfig botConfig, UserRepository repository, GroupRepository groupRepository, TestQuestionRepository testQuestionRepository, TestGroupRepository testGroupRepository, TestRepository testRepository, ResultRepository resultRepository,UserDto userDto, TestData testData, TestSession testSession) {
         this.botConfig = botConfig;
         this.repository = repository;
         this.groupRepository = groupRepository;
         this.testQuestionRepository = testQuestionRepository;
         this.testGroupRepository = testGroupRepository;
         this.testRepository = testRepository;
+        this.resultRepository = resultRepository;
         this.userDto = userDto;
         this.testData = testData;
         this.testSession = testSession;
@@ -91,7 +95,6 @@ public class Bot extends TelegramLongPollingBot {
             //TODO CHECK
             if (update.getCallbackQuery().getData().equals("tests")) {
                 userDto = UserMapper.toUserDto(repository.findById(chatId).orElseThrow(RuntimeException::new));
-                sendTextMessage(chatId, "Список доступных тестов: \n ТУТ ТИПО БУДУТ КНОПКИ С НАЗВАНИЯМИ ТЕСТОВ");
                 flag = CHECK;
                 List<TestGroup> testGroup = testGroupRepository.findTestGroupsByGroup_Name(userDto.getGroup());
                 List<Test> testList = testGroup.stream().map(TestGroup::getTest).collect(Collectors.toList());
@@ -105,7 +108,10 @@ public class Bot extends TelegramLongPollingBot {
                 String testName = update.getCallbackQuery().getData();
                 Test test = testRepository.findByTestName(testName);
                 testId = test.getTestId();
-//            flag = CHECK;
+                if(resultRepository.findFirstByUserAndTest(UserMapper.toUser(userDto), test).isPresent()) {
+                    sendTextMessage(chatId, "Тест можно пройти только 1 раз");
+                    return;
+                }
                 //TODO Подгружаем тест из базы и сохраняем в testData
                 List<Question> questionList = testQuestionRepository.findQuestionsByTestId(testId);
 
@@ -175,6 +181,19 @@ public class Bot extends TelegramLongPollingBot {
                         }
                     }
                     sendTextMessage(chatId, "Вы ответили правильно на " + correctQuestions + " из " + questionsCount);
+                    List<Result> resultList = new ArrayList<>();
+                    List<Question> questionList = testQuestionRepository.findQuestionsByTestId(testId);
+                    Test test = testRepository.findById(testId).orElseThrow(RuntimeException::new);
+                    for (int i = 0; i < testSession.userAnswers.size(); i++) {
+                        resultList.add(Result.builder()
+                                .answer(testSession.userAnswers.get(i))
+                                .user(UserMapper.toUser(userDto))
+                                .test(test)
+                                .question(questionList.get(i))
+                                .build());
+                    }
+                    resultRepository.saveAll(resultList);
+                    resultList.clear();
                     testSession.currentQuestion = 0;
                     testSession.userAnswers.clear();
                     testData.getQuestions().clear();
@@ -230,10 +249,10 @@ public class Bot extends TelegramLongPollingBot {
         keyboard.add(row);
         keyboardMarkup.setKeyboard(keyboard);
         keyboardMarkup.setResizeKeyboard(true);
+        keyboardMarkup.setOneTimeKeyboard(true);
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
-        String text = "Старт";
-        message.setText(String.format("Нажмите \"%s\", чтобы начать", text));
+        message.setText("Нажмите: Начать регистрацию");
         message.setReplyMarkup(keyboardMarkup);
         try {
             execute(message);

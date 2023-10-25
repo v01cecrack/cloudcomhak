@@ -14,6 +14,7 @@ import javax.persistence.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Result {
     @Id
@@ -30,6 +31,4 @@ public class Result {
     Question question;
     @Column(name = "answer")
     String answer;
-    @Column(name = "is_right")
-    Boolean isRight;
 }

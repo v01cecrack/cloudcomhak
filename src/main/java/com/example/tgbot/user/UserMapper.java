@@ -13,6 +13,8 @@ public class UserMapper {
     public static UserDto toUserDto(User user) {
         return UserDto.builder()
                 .chatId(user.getChatId())
+                .name(user.getName())
+                .surname(user.getSurname())
                 .group(user.getGroup())
                 .build();
     }

@@ -42,7 +42,6 @@ CREATE TABLE Results
     user_id BIGINT REFERENCES Users(chat_id),
     test_id BIGINT REFERENCES Tests(test_id),
     question_id BIGINT REFERENCES Questions(id),
-    answer TEXT NOT NULL,
-    is_right boolean
+    answer TEXT NOT NULL
 );
 
