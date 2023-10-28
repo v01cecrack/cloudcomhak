@@ -7,13 +7,14 @@ import com.example.tgbot.result.Result;
 import com.example.tgbot.result.ResultRepository;
 import com.example.tgbot.test.Test;
 import com.example.tgbot.test.TestRepository;
-import com.example.tgbot.testgroup.TestGroup;
 import com.example.tgbot.testgroup.TestGroupRepository;
 import com.example.tgbot.testquestion.TestQuestionRepository;
 import com.example.tgbot.user.UserDto;
 import com.example.tgbot.user.UserMapper;
 import com.example.tgbot.user.UserRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -33,6 +34,7 @@ import static com.example.tgbot.Flag.*;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class Bot extends TelegramLongPollingBot {
     private final BotConfig botConfig;
     private final UserRepository repository;
@@ -41,24 +43,14 @@ public class Bot extends TelegramLongPollingBot {
     private final TestGroupRepository testGroupRepository;
     private final TestRepository testRepository;
     private final ResultRepository resultRepository;
-    private static Flag flag;
+    private Flag flag;
+    @Autowired
     private UserDto userDto;
     private final TestData testData;
     private final TestSession testSession;
     private Long testId;
 
-    public Bot(BotConfig botConfig, UserRepository repository, GroupRepository groupRepository, TestQuestionRepository testQuestionRepository, TestGroupRepository testGroupRepository, TestRepository testRepository, ResultRepository resultRepository,UserDto userDto, TestData testData, TestSession testSession) {
-        this.botConfig = botConfig;
-        this.repository = repository;
-        this.groupRepository = groupRepository;
-        this.testQuestionRepository = testQuestionRepository;
-        this.testGroupRepository = testGroupRepository;
-        this.testRepository = testRepository;
-        this.resultRepository = resultRepository;
-        this.userDto = userDto;
-        this.testData = testData;
-        this.testSession = testSession;
-    }
+    private final BotService botService;
 
     @Override
     public String getBotUsername() {
@@ -77,15 +69,22 @@ public class Bot extends TelegramLongPollingBot {
             log.info("Пользователь {} ввел: {}", update.getMessage().getFrom().getUserName(), update.getMessage().getText());
             if (update.getMessage().getText().equals("/start")) {
                 chatId = update.getMessage().getChatId();
-                if (repository.findById(chatId).isEmpty()) {
-                    sendTextMessage(chatId, "Вам нужно зарегистрироваться");
-                    flag = START;
-                    startMessage(chatId);
-                    return;
+                if (botService.isCreated(chatId)) {
+                    try {
+                        execute(botService.messageStart1(chatId));
+                        flag = START;
+                        return;
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException();
+                    }
                 } else {
-                    sendWelcomeMessage(chatId);
-                    return;
-//                    flag = CHECK;
+                    try {
+                        execute(botService.messageStart2(chatId));
+                        return;
+//                        flag = START;
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException();
+                    }
                 }
             }
         }
@@ -94,49 +93,45 @@ public class Bot extends TelegramLongPollingBot {
             chatId = update.getCallbackQuery().getMessage().getChatId();
             //TODO CHECK
             if (update.getCallbackQuery().getData().equals("tests")) {
-                userDto = UserMapper.toUserDto(repository.findById(chatId).orElseThrow(RuntimeException::new));
-                flag = CHECK;
-                List<TestGroup> testGroup = testGroupRepository.findTestGroupsByGroup_Name(userDto.getGroup());
-                List<Test> testList = testGroup.stream().map(TestGroup::getTest).collect(Collectors.toList());
-                List<String> testNames = testList.stream().map(Test::getTestName).collect(Collectors.toList());
-                sendTestsButtons(chatId, testNames);
-                return;
+                try {
+                    execute(botService.testsMessage(chatId));
+                    flag = CHECK;
+                    return;
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException();
+                }
             }
 
             //TODO загрузить тест по названию кнопки НУЖЕН ТЕСТ ID
             if (flag == CHECK) {
                 String testName = update.getCallbackQuery().getData();
-                Test test = testRepository.findByTestName(testName);
-                testId = test.getTestId();
-                if(resultRepository.findFirstByUserAndTest(UserMapper.toUser(userDto), test).isPresent()) {
-                    sendTextMessage(chatId, "Тест можно пройти только 1 раз");
-                    return;
+                try {
+                    SendMessage sendMessage = botService.testStart(chatId, testName);
+                    execute(sendMessage);
+                    if (!sendMessage.getText().equals("Тест можно пройти только 1 раз")) { //TODO проверка на чат айди чтобы не было конфликтов с другими
+                        flag = TEST;
+                    }
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException();
                 }
-                //TODO Подгружаем тест из базы и сохраняем в testData
-                List<Question> questionList = testQuestionRepository.findQuestionsByTestId(testId);
-
-                List<String> questions = questionList.stream()
-                        .map(Question::getQuestionText)
-                        .collect(Collectors.toList());
-
-                List<String> answers = questionList.stream()
-                        .map(Question::getQuestionAnswer)
-                        .collect(Collectors.toList());
-
-                testData.setQuestions(questions);
-                testData.setCorrectAnswers(answers);
-                flag = TEST;
-                sendTextMessage(chatId, "Вы выбрали тест " + testName + " \n чтобы начать отправьте любой текст");
                 return;
             }
 
             if (flag == GROUP) {
                 String groupName = update.getCallbackQuery().getData();
-                userDto.setGroup(groupName);
-                repository.save(UserMapper.toUser(userDto));
-                sendTextMessage(chatId, "Сохранено");
-                sendWelcomeMessage(chatId);
-                return;
+                try {
+                    execute(botService.saveUser(chatId, groupName));
+                    return;
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException();
+                }
+            }
+            if (flag == ZERO) {
+                try {
+                    execute(botService.sendWelcomeMessage(chatId));
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException();
+                }
             }
         }
 
@@ -146,62 +141,53 @@ public class Bot extends TelegramLongPollingBot {
 
             switch (flag) {
                 case START:
-                    userDto.setChatId(chatId);
-                    flag = NAME;
-                    sendTextMessage(chatId, "Введите ваше имя");
-                    break;
+                    try {
+                        execute(botService.flagStart(chatId));
+                        flag = NAME;
+                        break;
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException();
+                    }
                 case NAME:
-                    userDto.setName(text);
-                    flag = SURNAME;
-                    sendTextMessage(chatId, "Введите вашу фамилию");
-                    break;
+                    try {
+                        execute(botService.flagName(chatId, text));
+                        flag = SURNAME;
+                        break;
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException();
+                    }
                 case SURNAME:
-                    userDto.setSurname(text);
-                    flag = GROUP;
-                    List<Group> groups = groupRepository.findAll();
-                    List<String> groupsNames = groups.stream().map(Group::getName).collect(Collectors.toList());
-                    sendGroupButtons(chatId, groupsNames);
-                    break;
+                    try {
+                        execute(botService.flagSurname(chatId, text));
+                        flag = GROUP;
+                        break;
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException();
+                    }
+//                    break;
                 case TEST:
-                    if (testSession.getCurrentQuestion() <= testData.getQuestions().size()) {
-                        if (testSession.getCurrentQuestion() != 0) {
-                            testSession.userAnswers.add(text);
+                    try {
+                        SendMessage sendMessage = botService.flagTest(chatId, text);
+                        execute(sendMessage);
+                        String regex = "Вы ответили правильно на \\d+ из \\d+";
+                        if (sendMessage.getText().matches(regex)) {
+                            flag = ZERO;
                         }
-                        testSession.currentQuestion++;
-                        if (testSession.currentQuestion <= testData.getQuestions().size()) {
-                            sendTextMessage(chatId, testData.getQuestions().get(testSession.getCurrentQuestion() - 1));
-                            return;
+                        else {
+                            break;
                         }
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException();
                     }
-                    int questionsCount = testData.getQuestions().size();
-                    int correctQuestions = 0;
-                    for (int i = 0; i < questionsCount; i++) {
-                        if (testSession.userAnswers.get(i).equals(testData.getCorrectAnswers().get(i))) {
-                            correctQuestions++;
-                        }
-                    }
-                    sendTextMessage(chatId, "Вы ответили правильно на " + correctQuestions + " из " + questionsCount);
-                    List<Result> resultList = new ArrayList<>();
-                    List<Question> questionList = testQuestionRepository.findQuestionsByTestId(testId);
-                    Test test = testRepository.findById(testId).orElseThrow(RuntimeException::new);
-                    for (int i = 0; i < testSession.userAnswers.size(); i++) {
-                        resultList.add(Result.builder()
-                                .answer(testSession.userAnswers.get(i))
-                                .user(UserMapper.toUser(userDto))
-                                .test(test)
-                                .question(questionList.get(i))
-                                .build());
-                    }
-                    resultRepository.saveAll(resultList);
-                    resultList.clear();
-                    testSession.currentQuestion = 0;
-                    testSession.userAnswers.clear();
-                    testData.getQuestions().clear();
-                    testData.getCorrectAnswers().clear();
-                    flag = START;
+//                    botService.clearSession();
+//                    break;
                 default:
-                    sendWelcomeMessage(chatId);
-                    break;
+                    try {
+                        execute(botService.sendWelcomeMessage(chatId));
+                        break;
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException();
+                    }
             }
         }
 
