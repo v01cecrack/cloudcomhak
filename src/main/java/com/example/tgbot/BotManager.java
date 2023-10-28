@@ -6,21 +6,22 @@ import com.example.tgbot.test.TestRepository;
 import com.example.tgbot.testgroup.TestGroupRepository;
 import com.example.tgbot.testquestion.TestQuestionRepository;
 import com.example.tgbot.user.User;
+import com.example.tgbot.user.UserDto;
 import com.example.tgbot.user.UserRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-//@Component
+@Component
+@RequiredArgsConstructor
 public class BotManager {
-    private final BotConfig botConfig;
-    private final UserRepository repository;
+    private BotService botService;
+    private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final TestQuestionRepository testQuestionRepository;
     private final TestGroupRepository testGroupRepository;
@@ -28,47 +29,32 @@ public class BotManager {
     private final ResultRepository resultRepository;
     private final TestData testData;
     private final TestSession testSession;
-    private final BotService botService;
-    private Map<Long, TelegramLongPollingBot> userBots = new HashMap<>();
+    private final UserDto userDto;
+    private Map<Long, BotService> userBots = new HashMap<>();
 
-    public BotManager(BotConfig botConfig, UserRepository repository, GroupRepository groupRepository, TestQuestionRepository testQuestionRepository,
-                      TestGroupRepository testGroupRepository, TestRepository testRepository, ResultRepository resultRepository,
-                      TestData testData, TestSession testSession, BotService botService) {
-        this.botConfig = botConfig;
-        this.repository = repository;
-        this.groupRepository = groupRepository;
-        this.testQuestionRepository = testQuestionRepository;
-        this.testGroupRepository = testGroupRepository;
-        this.testRepository = testRepository;
-        this.resultRepository = resultRepository;
-        this.testData = testData;
-        this.testSession = testSession;
-        this.botService = botService;
-    }
 
-    public TelegramLongPollingBot createBotForUser(long userId) {
+    public BotService createBotForUser(long userId) {
         // Создать новый экземпляр бота для данного пользователя
-        TelegramLongPollingBot userBot = new Bot(botConfig, repository, groupRepository, testQuestionRepository, testGroupRepository, testRepository, resultRepository, testData, testSession, botService);
+//        TelegramLongPollingBot userBot = new Bot(botConfig, botService);
+        botService = new BotService(userRepository, groupRepository, testQuestionRepository, testGroupRepository, testRepository, resultRepository, testData, testSession, userDto);
 
         // Сохранить его в словаре, используя идентификатор пользователя в качестве ключа
-        userBots.put(userId, userBot);
-
-        return userBot;
+        userBots.put(userId, botService);
+        return botService;
     }
 
-    public TelegramLongPollingBot getBotForUser(long userId) {
+    public BotService getBotForUser(long userId) {
         // Получить экземпляр бота для данного пользователя
         return userBots.get(userId);
     }
 
-    public void botStart(Update update) {
+    public BotService botStart(Update update) {
         long chatId = update.getMessage().getChatId();
-        User user = repository.findById(chatId).orElse(null);
+        User user = userRepository.findById(chatId).orElse(null);
         if (user == null) {
-            createBotForUser(chatId).onUpdateReceived(update);
-        } else {
-            getBotForUser(chatId).onUpdateReceived(update);
+            return createBotForUser(chatId);
         }
+        return getBotForUser(chatId);
     }
 }
 

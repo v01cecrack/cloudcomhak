@@ -1,20 +1,16 @@
 package com.example.tgbot;
 
-import com.example.tgbot.group.Group;
 import com.example.tgbot.group.GroupRepository;
-import com.example.tgbot.question.Question;
-import com.example.tgbot.result.Result;
 import com.example.tgbot.result.ResultRepository;
-import com.example.tgbot.test.Test;
 import com.example.tgbot.test.TestRepository;
 import com.example.tgbot.testgroup.TestGroupRepository;
 import com.example.tgbot.testquestion.TestQuestionRepository;
 import com.example.tgbot.user.UserDto;
-import com.example.tgbot.user.UserMapper;
 import com.example.tgbot.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -28,29 +24,18 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.example.tgbot.Flag.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+//@Scope(value = "prototype")
 public class Bot extends TelegramLongPollingBot {
     private final BotConfig botConfig;
-    private final UserRepository repository;
-    private final GroupRepository groupRepository;
-    private final TestQuestionRepository testQuestionRepository;
-    private final TestGroupRepository testGroupRepository;
-    private final TestRepository testRepository;
-    private final ResultRepository resultRepository;
+    private BotService botService;
+    private final BotManager botManager;
     private Flag flag;
-    @Autowired
-    private UserDto userDto;
-    private final TestData testData;
-    private final TestSession testSession;
-    private Long testId;
-
-    private final BotService botService;
 
     @Override
     public String getBotUsername() {
@@ -66,8 +51,10 @@ public class Bot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         long chatId;
         if (update.hasMessage()) {
+
             log.info("Пользователь {} ввел: {}", update.getMessage().getFrom().getUserName(), update.getMessage().getText());
             if (update.getMessage().getText().equals("/start")) {
+                botService = botManager.botStart(update);
                 chatId = update.getMessage().getChatId();
                 if (botService.isCreated(chatId)) {
                     try {
@@ -172,8 +159,7 @@ public class Bot extends TelegramLongPollingBot {
                         String regex = "Вы ответили правильно на \\d+ из \\d+";
                         if (sendMessage.getText().matches(regex)) {
                             flag = ZERO;
-                        }
-                        else {
+                        } else {
                             break;
                         }
                     } catch (TelegramApiException e) {
@@ -300,3 +286,6 @@ public class Bot extends TelegramLongPollingBot {
     }
 
 }
+
+
+

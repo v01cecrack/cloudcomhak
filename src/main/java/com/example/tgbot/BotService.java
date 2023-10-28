@@ -15,6 +15,7 @@ import com.example.tgbot.user.UserMapper;
 import com.example.tgbot.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -31,7 +32,7 @@ import static com.example.tgbot.Flag.START;
 import static com.example.tgbot.Flag.SURNAME;
 
 @Service
-@RequiredArgsConstructor
+@Scope(value = "prototype")
 public class BotService {
     private final UserRepository repository;
     private final GroupRepository groupRepository;
@@ -39,13 +40,24 @@ public class BotService {
     private final TestGroupRepository testGroupRepository;
     private final TestRepository testRepository;
     private final ResultRepository resultRepository;
-    private Flag flag;
+    //    private Flag flag;
     @Autowired
-    private UserDto userDto;
     private final TestData testData;
     private final TestSession testSession;
+    private UserDto userDto;
     private Long testId;
 
+    public BotService(UserRepository repository, GroupRepository groupRepository, TestQuestionRepository testQuestionRepository, TestGroupRepository testGroupRepository, TestRepository testRepository, ResultRepository resultRepository, TestData testData, TestSession testSession, UserDto userDto) {
+        this.repository = repository;
+        this.groupRepository = groupRepository;
+        this.testQuestionRepository = testQuestionRepository;
+        this.testGroupRepository = testGroupRepository;
+        this.testRepository = testRepository;
+        this.resultRepository = resultRepository;
+        this.testData = testData;
+        this.testSession = testSession;
+        this.userDto = userDto;
+    }
 
     public Boolean isCreated(long chatId) {
         return repository.findById(chatId).isEmpty();
@@ -53,7 +65,7 @@ public class BotService {
     public SendMessage messageStart1(long chatId) {
         if (repository.findById(chatId).isEmpty()) {
 //            sendTextMessage(chatId, "Вам нужно зарегистрироваться");
-            flag = START;
+//            flag = START;
             return startMessage(chatId);
         }
         return null;
@@ -102,13 +114,14 @@ public class BotService {
     }
 
     public SendMessage flagStart(long chatId) {
+
         userDto.setChatId(chatId);
         return sendTextMessage(chatId, "Введите ваше имя");
     }
 
     public SendMessage flagName(long chatId, String text) {
         userDto.setName(text);
-        flag = SURNAME;
+//        flag = SURNAME;
         return sendTextMessage(chatId, "Введите вашу фамилию");
     }
 
@@ -245,3 +258,4 @@ public class BotService {
         return message;
     }
 }
+
