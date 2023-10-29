@@ -2,6 +2,7 @@ package com.example.tgbot.user;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.context.annotation.Scope;
 
 import javax.persistence.*;
 
@@ -13,6 +14,7 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Scope(value = "prototype")
 public class User {
     @Id
     @Column(name = "chat_id")

@@ -5,6 +5,7 @@ import com.example.tgbot.test.Test;
 import com.example.tgbot.user.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.context.annotation.Scope;
 
 import javax.persistence.*;
 
@@ -16,6 +17,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Scope(value = "prototype")
 public class Result {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

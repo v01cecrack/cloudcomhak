@@ -1,15 +1,7 @@
 package com.example.tgbot;
 
-import com.example.tgbot.group.GroupRepository;
-import com.example.tgbot.result.ResultRepository;
-import com.example.tgbot.test.TestRepository;
-import com.example.tgbot.testgroup.TestGroupRepository;
-import com.example.tgbot.testquestion.TestQuestionRepository;
-import com.example.tgbot.user.UserDto;
-import com.example.tgbot.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -25,17 +17,15 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.tgbot.Flag.*;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
-//@Scope(value = "prototype")
+@Scope(value = "prototype")
 public class Bot extends TelegramLongPollingBot {
     private final BotConfig botConfig;
     private BotService botService;
     private final BotManager botManager;
-    private Flag flag;
+//    private Flag flag;
 
     @Override
     public String getBotUsername() {
@@ -51,15 +41,18 @@ public class Bot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         long chatId;
         if (update.hasMessage()) {
-
+            chatId = update.getMessage().getChatId();
+            botService = botManager.botStart(update);
             log.info("Пользователь {} ввел: {}", update.getMessage().getFrom().getUserName(), update.getMessage().getText());
             if (update.getMessage().getText().equals("/start")) {
-                botService = botManager.botStart(update);
-                chatId = update.getMessage().getChatId();
+//                chatId = update.getMessage().getChatId();
                 if (botService.isCreated(chatId)) {
                     try {
                         execute(botService.messageStart1(chatId));
-                        flag = START;
+//                        botService.flag = START;
+//                        botService.state.setStateStart();
+                        botService.getUserDto().setStateStart();
+//                        botManager.userBots.put(chatId, botService);
                         return;
                     } catch (TelegramApiException e) {
                         throw new RuntimeException();
@@ -67,6 +60,7 @@ public class Bot extends TelegramLongPollingBot {
                 } else {
                     try {
                         execute(botService.messageStart2(chatId));
+//                        botManager.userBots.put(chatId, botService);
                         return;
 //                        flag = START;
                     } catch (TelegramApiException e) {
@@ -82,7 +76,10 @@ public class Bot extends TelegramLongPollingBot {
             if (update.getCallbackQuery().getData().equals("tests")) {
                 try {
                     execute(botService.testsMessage(chatId));
-                    flag = CHECK;
+//                    botService.flag = CHECK;
+                    botService.getUserDto().setStateCheck();
+
+//                    botManager.userBots.put(chatId, botService);
                     return;
                 } catch (TelegramApiException e) {
                     throw new RuntimeException();
@@ -90,13 +87,15 @@ public class Bot extends TelegramLongPollingBot {
             }
 
             //TODO загрузить тест по названию кнопки НУЖЕН ТЕСТ ID
-            if (flag == CHECK) {
+            if (botService.getUserDto().getState().equals("CHECK")) {
                 String testName = update.getCallbackQuery().getData();
                 try {
                     SendMessage sendMessage = botService.testStart(chatId, testName);
                     execute(sendMessage);
                     if (!sendMessage.getText().equals("Тест можно пройти только 1 раз")) { //TODO проверка на чат айди чтобы не было конфликтов с другими
-                        flag = TEST;
+//                        botService.flag = TEST;
+                        botService.getUserDto().setStateTest();
+//                        botManager.userBots.put(chatId, botService);
                     }
                 } catch (TelegramApiException e) {
                     throw new RuntimeException();
@@ -104,18 +103,20 @@ public class Bot extends TelegramLongPollingBot {
                 return;
             }
 
-            if (flag == GROUP) {
+            if (botService.getUserDto().getState().equals("GROUP")) {
                 String groupName = update.getCallbackQuery().getData();
                 try {
                     execute(botService.saveUser(chatId, groupName));
+//                    botManager.userBots.put(chatId, botService);
                     return;
                 } catch (TelegramApiException e) {
                     throw new RuntimeException();
                 }
             }
-            if (flag == ZERO) {
+            if (botService.getUserDto().getState().equals("ZERO")) {
                 try {
                     execute(botService.sendWelcomeMessage(chatId));
+//                    botManager.userBots.put(chatId, botService);
                 } catch (TelegramApiException e) {
                     throw new RuntimeException();
                 }
@@ -126,40 +127,49 @@ public class Bot extends TelegramLongPollingBot {
             String text = update.getMessage().getText();
             chatId = update.getMessage().getChatId();
 
-            switch (flag) {
-                case START:
+            switch (botService.getUserDto().getState()) {
+                case "START":
                     try {
                         execute(botService.flagStart(chatId));
-                        flag = NAME;
+//                        botService.flag = NAME;
+                        botService.getUserDto().setStateName();
+//                        botManager.userBots.put(chatId, botService);
                         break;
                     } catch (TelegramApiException e) {
                         throw new RuntimeException();
                     }
-                case NAME:
+                case "NAME":
                     try {
                         execute(botService.flagName(chatId, text));
-                        flag = SURNAME;
+//                        botService.flag = SURNAME;
+                        botService.getUserDto().setStateSurname();
+//                        botManager.userBots.put(chatId, botService);
                         break;
                     } catch (TelegramApiException e) {
                         throw new RuntimeException();
                     }
-                case SURNAME:
+                case "SURNAME":
                     try {
                         execute(botService.flagSurname(chatId, text));
-                        flag = GROUP;
+//                        botService.flag = GROUP;
+                        botService.getUserDto().setStateGroup();
+//                        botManager.userBots.put(chatId, botService);
                         break;
                     } catch (TelegramApiException e) {
                         throw new RuntimeException();
                     }
 //                    break;
-                case TEST:
+                case "TEST":
                     try {
                         SendMessage sendMessage = botService.flagTest(chatId, text);
                         execute(sendMessage);
                         String regex = "Вы ответили правильно на \\d+ из \\d+";
                         if (sendMessage.getText().matches(regex)) {
-                            flag = ZERO;
+//                            botService.flag = ZERO;
+                            botService.getUserDto().setStateZero();
+//                            botManager.userBots.put(chatId, botService);
                         } else {
+//                            botManager.userBots.put(chatId, botService);
                             break;
                         }
                     } catch (TelegramApiException e) {
@@ -170,6 +180,7 @@ public class Bot extends TelegramLongPollingBot {
                 default:
                     try {
                         execute(botService.sendWelcomeMessage(chatId));
+//                        botManager.userBots.put(chatId, botService);
                         break;
                     } catch (TelegramApiException e) {
                         throw new RuntimeException();

@@ -13,8 +13,9 @@ import com.example.tgbot.testquestion.TestQuestionRepository;
 import com.example.tgbot.user.UserDto;
 import com.example.tgbot.user.UserMapper;
 import com.example.tgbot.user.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -28,10 +29,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.example.tgbot.Flag.START;
-import static com.example.tgbot.Flag.SURNAME;
-
 @Service
+@Slf4j
+@Getter
+@Setter
 @Scope(value = "prototype")
 public class BotService {
     private final UserRepository repository;
@@ -40,10 +41,10 @@ public class BotService {
     private final TestGroupRepository testGroupRepository;
     private final TestRepository testRepository;
     private final ResultRepository resultRepository;
-    //    private Flag flag;
-    @Autowired
-    private final TestData testData;
-    private final TestSession testSession;
+//    public State state;
+
+    private TestData testData;
+    private TestSession testSession;
     private UserDto userDto;
     private Long testId;
 
@@ -57,11 +58,13 @@ public class BotService {
         this.testData = testData;
         this.testSession = testSession;
         this.userDto = userDto;
+//        this.state = state;
     }
 
     public Boolean isCreated(long chatId) {
         return repository.findById(chatId).isEmpty();
     }
+
     public SendMessage messageStart1(long chatId) {
         if (repository.findById(chatId).isEmpty()) {
 //            sendTextMessage(chatId, "Вам нужно зарегистрироваться");
@@ -176,8 +179,7 @@ public class BotService {
     }
 
     private SendMessage sendTextMessage(Long chatId, String text) {
-        SendMessage message = new SendMessage(chatId.toString(), text);
-        return message;
+        return new SendMessage(chatId.toString(), text);
     }
 
     public SendMessage sendWelcomeMessage(long chatId) {
@@ -219,9 +221,9 @@ public class BotService {
     private InlineKeyboardMarkup testButtons(List<String> testNames) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        for (int i = 0; i < testNames.size(); i++) {
+        for (String testName : testNames) {
             List<InlineKeyboardButton> row = new ArrayList<>();
-            row.add(InlineKeyboardButton.builder().text(testNames.get(i)).callbackData(testNames.get(i)).build());
+            row.add(InlineKeyboardButton.builder().text(testName).callbackData(testName).build());
             keyboard.add(row);
             inlineKeyboardMarkup.setKeyboard(keyboard);
         }
@@ -240,9 +242,9 @@ public class BotService {
     private InlineKeyboardMarkup groupButtons(List<String> groupNames) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        for (int i = 0; i < groupNames.size(); i++) {
+        for (String groupName : groupNames) {
             List<InlineKeyboardButton> row = new ArrayList<>();
-            row.add(InlineKeyboardButton.builder().text(groupNames.get(i)).callbackData(groupNames.get(i)).build());
+            row.add(InlineKeyboardButton.builder().text(groupName).callbackData(groupName).build());
             keyboard.add(row);
             inlineKeyboardMarkup.setKeyboard(keyboard);
         }

@@ -1,5 +1,8 @@
 package com.example.tgbot.user;
 
+import org.springframework.context.annotation.Scope;
+
+@Scope(value = "prototype")
 public class UserMapper {
     public static User toUser(UserDto userDto) {
         return User.builder()

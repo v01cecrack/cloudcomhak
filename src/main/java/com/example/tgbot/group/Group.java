@@ -2,6 +2,7 @@ package com.example.tgbot.group;
 
 import com.example.tgbot.user.User;
 import lombok.*;
+import org.springframework.context.annotation.Scope;
 
 import javax.persistence.*;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Scope(value = "prototype")
 public class Group {
     @Id
     @Column(name = "name")
