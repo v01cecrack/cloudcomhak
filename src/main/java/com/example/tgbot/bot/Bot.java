@@ -144,7 +144,7 @@ public class Bot extends TelegramLongPollingBot {
                     }
                 default:
                     try {
-                        execute(botService.sendWelcomeMessage(chatId));
+                        execute(botService.sendTextMessage(chatId, "Неизвестная команда"));
                         break;
                     } catch (TelegramApiException e) {
                         throw new RuntimeException();

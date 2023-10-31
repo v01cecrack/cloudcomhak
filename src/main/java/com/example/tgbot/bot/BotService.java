@@ -109,7 +109,7 @@ public class BotService {
         userDto.setGroup(groupName);
         userRepository.save(UserMapper.toUser(userDto));
         if (!userRepository.findById(chatId).isEmpty()) {
-            return sendTextMessage(chatId, "Сохранено");
+            return sendWelcomeMessage(chatId);
         }
         return sendTextMessage(chatId, "Что то пошло не так, повторите позже");
     }
@@ -176,7 +176,7 @@ public class BotService {
         testData.getCorrectAnswers().clear();
     }
 
-    private SendMessage sendTextMessage(Long chatId, String text) {
+    public SendMessage sendTextMessage(Long chatId, String text) {
         return new SendMessage(chatId.toString(), text);
     }
 
