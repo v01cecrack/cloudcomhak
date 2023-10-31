@@ -1,5 +1,7 @@
-package com.example.tgbot;
+package com.example.tgbot.bot;
 
+import com.example.tgbot.TestData;
+import com.example.tgbot.TestSession;
 import com.example.tgbot.group.Group;
 import com.example.tgbot.group.GroupRepository;
 import com.example.tgbot.question.Question;
@@ -35,21 +37,20 @@ import java.util.stream.Collectors;
 @Setter
 @Scope(value = "prototype")
 public class BotService {
-    private final UserRepository repository;
+    private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final TestQuestionRepository testQuestionRepository;
     private final TestGroupRepository testGroupRepository;
     private final TestRepository testRepository;
     private final ResultRepository resultRepository;
-//    public State state;
 
     private TestData testData;
     private TestSession testSession;
     private UserDto userDto;
     private Long testId;
 
-    public BotService(UserRepository repository, GroupRepository groupRepository, TestQuestionRepository testQuestionRepository, TestGroupRepository testGroupRepository, TestRepository testRepository, ResultRepository resultRepository, TestData testData, TestSession testSession, UserDto userDto) {
-        this.repository = repository;
+    public BotService(UserRepository userRepository, GroupRepository groupRepository, TestQuestionRepository testQuestionRepository, TestGroupRepository testGroupRepository, TestRepository testRepository, ResultRepository resultRepository, TestData testData, TestSession testSession, UserDto userDto) {
+        this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.testQuestionRepository = testQuestionRepository;
         this.testGroupRepository = testGroupRepository;
@@ -58,28 +59,25 @@ public class BotService {
         this.testData = testData;
         this.testSession = testSession;
         this.userDto = userDto;
-//        this.state = state;
     }
 
     public Boolean isCreated(long chatId) {
-        return repository.findById(chatId).isEmpty();
+        return userRepository.findById(chatId).isEmpty();
     }
 
-    public SendMessage messageStart1(long chatId) {
-        if (repository.findById(chatId).isEmpty()) {
-//            sendTextMessage(chatId, "Вам нужно зарегистрироваться");
-//            flag = START;
+    public SendMessage findAndReturnRegistration(long chatId) {
+        if (userRepository.findById(chatId).isEmpty()) {
             return startMessage(chatId);
         }
         return null;
     }
 
-    public SendMessage messageStart2(long chatId) {
+    public SendMessage sendWelcome(long chatId) {
         return sendWelcomeMessage(chatId);
     }
 
     public SendMessage testsMessage(long chatId) {
-        userDto = UserMapper.toUserDto(repository.findById(chatId).orElseThrow(RuntimeException::new));
+        userDto = UserMapper.toUserDto(userRepository.findById(chatId).orElseThrow(RuntimeException::new));
         List<TestGroup> testGroup = testGroupRepository.findTestGroupsByGroup_Name(userDto.getGroup());
         List<Test> testList = testGroup.stream().map(TestGroup::getTest).collect(Collectors.toList());
         List<String> testNames = testList.stream().map(Test::getTestName).collect(Collectors.toList());
@@ -92,7 +90,6 @@ public class BotService {
         if (resultRepository.findFirstByUserAndTest(UserMapper.toUser(userDto), test).isPresent()) {
             return sendTextMessage(chatId, "Тест можно пройти только 1 раз");
         }
-        //TODO Подгружаем тест из базы и сохраняем в testData
         List<Question> questionList = testQuestionRepository.findQuestionsByTestId(testId);
 
         List<String> questions = questionList.stream()
@@ -105,15 +102,16 @@ public class BotService {
 
         testData.setQuestions(questions);
         testData.setCorrectAnswers(answers);
-//        flag = TEST;
         return sendTextMessage(chatId, "Вы выбрали тест " + testName + " \n чтобы начать отправьте любой текст");
     }
 
     public SendMessage saveUser(long chatId, String groupName) {
         userDto.setGroup(groupName);
-        repository.save(UserMapper.toUser(userDto));
-//        sendWelcomeMessage(chatId);
-        return sendTextMessage(chatId, "Сохранено");
+        userRepository.save(UserMapper.toUser(userDto));
+        if (!userRepository.findById(chatId).isEmpty()) {
+            return sendTextMessage(chatId, "Сохранено");
+        }
+        return sendTextMessage(chatId, "Что то пошло не так, повторите позже");
     }
 
     public SendMessage flagStart(long chatId) {
@@ -148,7 +146,7 @@ public class BotService {
         int questionsCount = testData.getQuestions().size();
         int correctQuestions = 0;
         for (int i = 0; i < questionsCount; i++) {
-            if (testSession.userAnswers.get(i).equals(testData.getCorrectAnswers().get(i))) {
+            if (testSession.userAnswers.get(i).equalsIgnoreCase(testData.getCorrectAnswers().get(i))) {
                 correctQuestions++;
             }
         }
@@ -219,15 +217,7 @@ public class BotService {
     }
 
     private InlineKeyboardMarkup testButtons(List<String> testNames) {
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        for (String testName : testNames) {
-            List<InlineKeyboardButton> row = new ArrayList<>();
-            row.add(InlineKeyboardButton.builder().text(testName).callbackData(testName).build());
-            keyboard.add(row);
-            inlineKeyboardMarkup.setKeyboard(keyboard);
-        }
-        return inlineKeyboardMarkup;
+        return getInlineKeyboardMarkup(testNames);
     }
 
     private SendMessage sendTestsButtons(long chatId, List<String> testNames) {
@@ -240,6 +230,10 @@ public class BotService {
     }
 
     private InlineKeyboardMarkup groupButtons(List<String> groupNames) {
+        return getInlineKeyboardMarkup(groupNames);
+    }
+
+    private InlineKeyboardMarkup getInlineKeyboardMarkup(List<String> groupNames) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         for (String groupName : groupNames) {

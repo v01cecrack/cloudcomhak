@@ -1,4 +1,4 @@
-package com.example.tgbot;
+package com.example.tgbot.bot;
 
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
