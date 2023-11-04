@@ -2,6 +2,8 @@ package com.example.tgbot.bot;
 
 import com.example.tgbot.TestData;
 import com.example.tgbot.TestSession;
+import com.example.tgbot.discipline.Discipline;
+import com.example.tgbot.discipline.DisciplineRepository;
 import com.example.tgbot.group.Group;
 import com.example.tgbot.group.GroupRepository;
 import com.example.tgbot.question.Question;
@@ -9,8 +11,8 @@ import com.example.tgbot.result.Result;
 import com.example.tgbot.result.ResultRepository;
 import com.example.tgbot.test.Test;
 import com.example.tgbot.test.TestRepository;
-import com.example.tgbot.testgroup.TestGroup;
-import com.example.tgbot.testgroup.TestGroupRepository;
+import com.example.tgbot.disciplinegroup.DisciplineGroup;
+import com.example.tgbot.disciplinegroup.DisciplineGroupRepository;
 import com.example.tgbot.testquestion.TestQuestionRepository;
 import com.example.tgbot.user.UserDto;
 import com.example.tgbot.user.UserMapper;
@@ -40,20 +42,22 @@ public class BotService {
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final TestQuestionRepository testQuestionRepository;
-    private final TestGroupRepository testGroupRepository;
+    private final DisciplineGroupRepository disciplineGroupRepository;
     private final TestRepository testRepository;
     private final ResultRepository resultRepository;
+    private final DisciplineRepository disciplineRepository;
 
     private TestData testData;
     private TestSession testSession;
     private UserDto userDto;
     private Long testId;
 
-    public BotService(UserRepository userRepository, GroupRepository groupRepository, TestQuestionRepository testQuestionRepository, TestGroupRepository testGroupRepository, TestRepository testRepository, ResultRepository resultRepository, TestData testData, TestSession testSession, UserDto userDto) {
+    public BotService(UserRepository userRepository, GroupRepository groupRepository, TestQuestionRepository testQuestionRepository,DisciplineRepository disciplineRepository, DisciplineGroupRepository disciplineGroupRepository, TestRepository testRepository, ResultRepository resultRepository, TestData testData, TestSession testSession, UserDto userDto) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.testQuestionRepository = testQuestionRepository;
-        this.testGroupRepository = testGroupRepository;
+        this.disciplineRepository = disciplineRepository;
+        this.disciplineGroupRepository = disciplineGroupRepository;
         this.testRepository = testRepository;
         this.resultRepository = resultRepository;
         this.testData = testData;
@@ -76,12 +80,18 @@ public class BotService {
         return sendWelcomeMessage(chatId);
     }
 
-    public SendMessage testsMessage(long chatId) {
+    public SendMessage disciplineMessage(long chatId) {
         userDto = UserMapper.toUserDto(userRepository.findById(chatId).orElseThrow(RuntimeException::new));
-        List<TestGroup> testGroup = testGroupRepository.findTestGroupsByGroup_Name(userDto.getGroup());
-        List<Test> testList = testGroup.stream().map(TestGroup::getTest).collect(Collectors.toList());
+        List<DisciplineGroup> disciplineGroups = disciplineGroupRepository.findDisciplineGroupsByGroup_Name(userDto.getGroup());
+        List<Discipline> disciplineList = disciplineGroups.stream().map(DisciplineGroup::getDiscipline).collect(Collectors.toList());
+        List<String> disciplineNames = disciplineList.stream().map(Discipline::getName).collect(Collectors.toList());
+        return sendDisciplineButtons(chatId, disciplineNames);
+    }
+
+    public SendMessage testsMessage(long chatId, String disciplineName) {
+        List<Test> testList = testRepository.findTestsByDisciplineName(disciplineName);
         List<String> testNames = testList.stream().map(Test::getTestName).collect(Collectors.toList());
-        return sendTestsButtons(chatId, testNames);
+        return sendTestsButtons(chatId, testNames, disciplineName);
     }
 
     public SendMessage testStart(long chatId, String testName) {
@@ -183,7 +193,7 @@ public class BotService {
     public SendMessage sendWelcomeMessage(long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
-        message.setText("Добро пожаловать! Выберите действие:");
+        message.setText("Выберите действие:");
 
         InlineKeyboardMarkup keyboardMarkup = createKeyboard();
         message.setReplyMarkup(keyboardMarkup);
@@ -194,7 +204,7 @@ public class BotService {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<InlineKeyboardButton> row1 = new ArrayList<>();
-        row1.add(InlineKeyboardButton.builder().text("Выбрать тест").callbackData("tests").build());
+        row1.add(InlineKeyboardButton.builder().text("Выбрать дисциплину").callbackData("disciplines").build());
         keyboard.add(row1);
         inlineKeyboardMarkup.setKeyboard(keyboard);
         return inlineKeyboardMarkup;
@@ -217,13 +227,37 @@ public class BotService {
     }
 
     private InlineKeyboardMarkup testButtons(List<String> testNames) {
-        return getInlineKeyboardMarkup(testNames);
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        for (String groupName : testNames) {
+            List<InlineKeyboardButton> row = new ArrayList<>();
+            row.add(InlineKeyboardButton.builder().text(groupName).callbackData(groupName).build());
+            keyboard.add(row);
+            inlineKeyboardMarkup.setKeyboard(keyboard);
+        }
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(InlineKeyboardButton.builder().text("Назад ↩").callbackData("назад").build());
+        keyboard.add(row);
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
     }
 
-    private SendMessage sendTestsButtons(long chatId, List<String> testNames) {
+    private InlineKeyboardMarkup disciplineButtons(List<String> disciplineNames) {
+        return getInlineKeyboardMarkup(disciplineNames);
+    }
+    private SendMessage sendDisciplineButtons(long chatId, List<String> disciplineNames) {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
-        message.setText("Список доступных тестов:");
+        message.setText("Список дисциплин:");
+        InlineKeyboardMarkup keyboardMarkup = disciplineButtons(disciplineNames);
+        message.setReplyMarkup(keyboardMarkup);
+        return message;
+    }
+
+    private SendMessage sendTestsButtons(long chatId, List<String> testNames, String disciplineName) {
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText("Список доступных тестов " + disciplineName + " :");
         InlineKeyboardMarkup keyboardMarkup = testButtons(testNames);
         message.setReplyMarkup(keyboardMarkup);
         return message;

@@ -53,23 +53,50 @@ public class Bot extends TelegramLongPollingBot {
                     }
                 }
             }
+
+            if (botService.getUserDto().getState().equals("ZERO")) {
+                try {
+                    execute(botService.sendWelcomeMessage(chatId));
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException();
+                }
+            }
         }
         if (update.hasCallbackQuery()) {
             log.info("Пользователь {} нажал кнопку {}", update.getCallbackQuery().getFrom().getUserName(), update.getCallbackQuery().getData());
             chatId = update.getCallbackQuery().getMessage().getChatId();
-            //TODO CHECK
-            if (update.getCallbackQuery().getData().equals("tests")) {
+            if (update.getCallbackQuery().getData().equals("disciplines")) {
                 try {
-                    execute(botService.testsMessage(chatId));
-                    botService.getUserDto().setStateCheck();
+                    execute(botService.disciplineMessage(chatId));
+                    botService.getUserDto().setStateDiscipline();
                     return;
                 } catch (TelegramApiException e) {
                     throw new RuntimeException();
                 }
             }
 
+            if (botService.getUserDto().getState().equals("DISCIPLINE")) {
+                String disciplineName = update.getCallbackQuery().getData();
+                try {
+                    execute(botService.testsMessage(chatId, disciplineName));
+                    botService.getUserDto().setStateCheck();
+                    return;
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
             if (botService.getUserDto().getState().equals("CHECK")) {
                 String testName = update.getCallbackQuery().getData();
+                if (testName.equals("назад")) {
+                    try {
+                        execute(botService.disciplineMessage(chatId));
+                        botService.getUserDto().setStateDiscipline();
+                        return;
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException();
+                    }
+                }
                 try {
                     SendMessage sendMessage = botService.testStart(chatId, testName);
                     execute(sendMessage);
@@ -91,13 +118,7 @@ public class Bot extends TelegramLongPollingBot {
                     throw new RuntimeException();
                 }
             }
-            if (botService.getUserDto().getState().equals("ZERO")) {
-                try {
-                    execute(botService.sendWelcomeMessage(chatId));
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException();
-                }
-            }
+
         }
 
         if (update.getMessage().hasText()) {
@@ -139,6 +160,13 @@ public class Bot extends TelegramLongPollingBot {
                         } else {
                             break;
                         }
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException();
+                    }
+                case "ZERO":
+                    try {
+                        execute(botService.sendWelcomeMessage(chatId));
+                        break;
                     } catch (TelegramApiException e) {
                         throw new RuntimeException();
                     }

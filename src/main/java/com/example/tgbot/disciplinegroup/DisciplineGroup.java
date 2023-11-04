@@ -1,7 +1,7 @@
-package com.example.tgbot.testgroup;
+package com.example.tgbot.disciplinegroup;
 
+import com.example.tgbot.discipline.Discipline;
 import com.example.tgbot.group.Group;
-import com.example.tgbot.test.Test;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Scope;
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Scope;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "Test_Groups")
+@Table(name = "Discipline_Groups")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -17,14 +17,14 @@ import javax.persistence.*;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Scope(value = "prototype")
-public class TestGroup {
+public class DisciplineGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "test_group_id")
+    @Column(name = "discipline_group_id")
     Long id;
     @ManyToOne
-    @JoinColumn(name = "test_id")
-    private Test test;
+    @JoinColumn(name = "discipline_id")
+    private Discipline discipline;
     @ManyToOne
     @JoinColumn(name = "group_name")
     private Group group;

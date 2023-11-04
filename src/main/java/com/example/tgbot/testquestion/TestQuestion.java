@@ -23,8 +23,8 @@ public class TestQuestion {
     Long id;
     @ManyToOne
     @JoinColumn(name = "test_id")
-    private Test test;
+    Test test;
     @ManyToOne
     @JoinColumn(name = "question_id")
-    private Question question;
+    Question question;
 }

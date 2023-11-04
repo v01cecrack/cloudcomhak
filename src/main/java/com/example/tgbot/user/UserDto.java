@@ -47,4 +47,8 @@ public class UserDto {
         state = "CHECK";
     }
 
+    public void setStateDiscipline() {
+        state = "DISCIPLINE";
+    }
+
 }
