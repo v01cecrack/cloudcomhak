@@ -9,6 +9,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -74,9 +76,54 @@ public class Bot extends TelegramLongPollingBot {
                     throw new RuntimeException();
                 }
             }
+            if (update.getCallbackQuery().getData().equals("statistics")) {
+                try {
+                    execute(botService.disciplineMessage(chatId));
+                    botService.getUserDto().setStateStatistics();
+                    return;
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (update.getCallbackQuery().getData().equals("Назад")) {
+                try {
+                    execute(botService.disciplineMessage(chatId));
+                    botService.getUserDto().setStateStatistics();
+                    return;
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            if (botService.getUserDto().getState().equals("STATISTICS")) {
+                String disciplineName = update.getCallbackQuery().getData();
+                if (update.getCallbackQuery().getData().equals("назад")) {
+                    try {
+                        execute(botService.sendWelcomeMessage(chatId));
+                        return;
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                try {
+                    execute(botService.statisticsByDiscipline(chatId, disciplineName));
+                    botService.getUserDto().setStateZero();
+                    return;
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
 
             if (botService.getUserDto().getState().equals("DISCIPLINE")) {
                 String disciplineName = update.getCallbackQuery().getData();
+                if (update.getCallbackQuery().getData().equals("назад")) {
+                    try {
+                        execute(botService.sendWelcomeMessage(chatId));
+                        return;
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
                 try {
                     execute(botService.testsMessage(chatId, disciplineName));
                     botService.getUserDto().setStateCheck();

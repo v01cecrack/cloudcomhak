@@ -4,6 +4,8 @@ import com.example.tgbot.TestData;
 import com.example.tgbot.TestSession;
 import com.example.tgbot.discipline.Discipline;
 import com.example.tgbot.discipline.DisciplineRepository;
+import com.example.tgbot.disciplinegroup.DisciplineGroup;
+import com.example.tgbot.disciplinegroup.DisciplineGroupRepository;
 import com.example.tgbot.group.Group;
 import com.example.tgbot.group.GroupRepository;
 import com.example.tgbot.question.Question;
@@ -11,8 +13,6 @@ import com.example.tgbot.result.Result;
 import com.example.tgbot.result.ResultRepository;
 import com.example.tgbot.test.Test;
 import com.example.tgbot.test.TestRepository;
-import com.example.tgbot.disciplinegroup.DisciplineGroup;
-import com.example.tgbot.disciplinegroup.DisciplineGroupRepository;
 import com.example.tgbot.testquestion.TestQuestionRepository;
 import com.example.tgbot.user.UserDto;
 import com.example.tgbot.user.UserMapper;
@@ -29,6 +29,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,7 +53,7 @@ public class BotService {
     private UserDto userDto;
     private Long testId;
 
-    public BotService(UserRepository userRepository, GroupRepository groupRepository, TestQuestionRepository testQuestionRepository,DisciplineRepository disciplineRepository, DisciplineGroupRepository disciplineGroupRepository, TestRepository testRepository, ResultRepository resultRepository, TestData testData, TestSession testSession, UserDto userDto) {
+    public BotService(UserRepository userRepository, GroupRepository groupRepository, TestQuestionRepository testQuestionRepository, DisciplineRepository disciplineRepository, DisciplineGroupRepository disciplineGroupRepository, TestRepository testRepository, ResultRepository resultRepository, TestData testData, TestSession testSession, UserDto userDto) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.testQuestionRepository = testQuestionRepository;
@@ -200,12 +201,44 @@ public class BotService {
         return message;
     }
 
+    public SendMessage statisticsByDiscipline(long chatId, String disciplineName) {
+        List<Object[]> resultsList = resultRepository.getUserStatisticsByDiscipline(chatId, disciplineName);
+        StringBuilder result = new StringBuilder();
+        BigInteger totalAnswers = BigInteger.ZERO;
+        BigInteger totalCorrectAnswers = BigInteger.ZERO;
+
+        for (Object[] object : resultsList) {
+            BigInteger correctAnswers = (BigInteger) object[4];
+            BigInteger total = (BigInteger) object[3];
+            totalCorrectAnswers = totalCorrectAnswers.add(correctAnswers);
+            totalAnswers = totalAnswers.add(total);
+            result.append(object[1]).append(": ").append(correctAnswers).append("/").append(total).append("\n");
+        }
+
+        result.append("Общий итог: ").append(totalCorrectAnswers).append("/").append(totalAnswers);
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText(String.valueOf(result));
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(InlineKeyboardButton.builder().text("Назад ↩").callbackData("Назад").build());
+        keyboard.add(row);
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        message.setReplyMarkup(inlineKeyboardMarkup);
+        return message;
+
+    }
+
     private InlineKeyboardMarkup createKeyboard() {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<InlineKeyboardButton> row1 = new ArrayList<>();
+        List<InlineKeyboardButton> row2 = new ArrayList<>();
         row1.add(InlineKeyboardButton.builder().text("Выбрать дисциплину").callbackData("disciplines").build());
+        row2.add(InlineKeyboardButton.builder().text("Статистика").callbackData("statistics").build());
         keyboard.add(row1);
+        keyboard.add(row2);
         inlineKeyboardMarkup.setKeyboard(keyboard);
         return inlineKeyboardMarkup;
     }
@@ -243,8 +276,21 @@ public class BotService {
     }
 
     private InlineKeyboardMarkup disciplineButtons(List<String> disciplineNames) {
-        return getInlineKeyboardMarkup(disciplineNames);
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        for (String groupName : disciplineNames) {
+            List<InlineKeyboardButton> row = new ArrayList<>();
+            row.add(InlineKeyboardButton.builder().text(groupName).callbackData(groupName).build());
+            keyboard.add(row);
+            inlineKeyboardMarkup.setKeyboard(keyboard);
+        }
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(InlineKeyboardButton.builder().text("Назад ↩").callbackData("назад").build());
+        keyboard.add(row);
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
     }
+
     private SendMessage sendDisciplineButtons(long chatId, List<String> disciplineNames) {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));

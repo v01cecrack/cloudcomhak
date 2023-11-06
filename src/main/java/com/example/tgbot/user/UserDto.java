@@ -51,4 +51,8 @@ public class UserDto {
         state = "DISCIPLINE";
     }
 
+    public void setStateStatistics() {
+        state = "STATISTICS";
+    }
+
 }
