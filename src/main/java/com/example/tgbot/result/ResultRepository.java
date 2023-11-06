@@ -1,6 +1,5 @@
 package com.example.tgbot.result;
 
-import com.example.tgbot.statistics.Statistics;
 import com.example.tgbot.test.Test;
 import com.example.tgbot.user.User;
 import org.springframework.context.annotation.Scope;

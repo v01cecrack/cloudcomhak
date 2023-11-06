@@ -212,10 +212,12 @@ public class BotService {
             BigInteger total = (BigInteger) object[3];
             totalCorrectAnswers = totalCorrectAnswers.add(correctAnswers);
             totalAnswers = totalAnswers.add(total);
-            result.append(object[1]).append(": ").append(correctAnswers).append("/").append(total).append("\n");
+            double percentage = total.doubleValue() > 0 ? (correctAnswers.doubleValue() / total.doubleValue()) * 100.0 : 0.0;
+            result.append(object[1]).append(": ").append(correctAnswers).append("/").append(total).append(" (").append(String.format("%.1f%%", percentage)).append(")\n");
         }
 
-        result.append("Общий итог: ").append(totalCorrectAnswers).append("/").append(totalAnswers);
+        double totalPercentage = totalAnswers.doubleValue() > 0 ? (totalCorrectAnswers.doubleValue() / totalAnswers.doubleValue()) * 100.0 : 0.0;
+        result.append("Общий итог: ").append(totalCorrectAnswers).append("/").append(totalAnswers).append(" (").append(String.format("%.1f%%", totalPercentage)).append(")");
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(String.valueOf(result));

@@ -107,7 +107,7 @@ public class Bot extends TelegramLongPollingBot {
                 }
                 try {
                     execute(botService.statisticsByDiscipline(chatId, disciplineName));
-                    botService.getUserDto().setStateZero();
+                    botService.getUserDto().setStateZero();   //TODO zero???
                     return;
                 } catch (TelegramApiException e) {
                     throw new RuntimeException(e);
