@@ -83,7 +83,8 @@ public class BotService {
 
     public SendMessage disciplineMessage(long chatId) {
         userDto = UserMapper.toUserDto(userRepository.findById(chatId).orElseThrow(RuntimeException::new));
-        List<DisciplineGroup> disciplineGroups = disciplineGroupRepository.findDisciplineGroupsByGroup_Name(userDto.getGroup());
+        List<DisciplineGroup> disciplineGroups = disciplineGroupRepository.findByGroup_Name("4253");
+//        List<DisciplineGroup> disciplineGroups = disciplineGroupRepository.findByGroup_Name(userDto.getGroup());
         List<Discipline> disciplineList = disciplineGroups.stream().map(DisciplineGroup::getDiscipline).collect(Collectors.toList());
         List<String> disciplineNames = disciplineList.stream().map(Discipline::getName).collect(Collectors.toList());
         return sendDisciplineButtons(chatId, disciplineNames);

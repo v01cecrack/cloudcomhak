@@ -2,27 +2,31 @@ package com.example.tgbot.discipline;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+@RequestMapping("/disciplines")
 public class DisciplineController {
     private final DisciplineService disciplineService;
 
-    @GetMapping("/disciplines")
+    @GetMapping()
     public List<Discipline> getDisciplines() {
         return disciplineService.getDisciplines();
     }
 
-    @PostMapping("/disciplines")
+    @PostMapping()
     public void postDiscipline(@RequestBody Discipline discipline) {
         disciplineService.postDiscipline(discipline);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteDiscipline(@PathVariable Long id) {
+        disciplineService.deleteDiscipline(id);
+    }
+
 
 }

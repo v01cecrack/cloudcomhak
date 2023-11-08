@@ -19,7 +19,7 @@ public class TgbotApplication {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*")
+                        .allowedOrigins("http://localhost:3000")
                         .allowedMethods("*")
                         .allowedHeaders("*")
                         .allowCredentials(false).maxAge(3600);
