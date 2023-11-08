@@ -1,5 +1,6 @@
 package com.example.tgbot.user;
 
+import com.example.tgbot.group.Group;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Scope;
@@ -18,7 +19,7 @@ public class UserDto {
     long chatId;
     String name;
     String surname;
-    String group;
+    Group group;
     @Getter
     String state;
 

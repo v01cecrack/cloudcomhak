@@ -118,7 +118,7 @@ public class BotService {
     }
 
     public SendMessage saveUser(long chatId, String groupName) {
-        userDto.setGroup(groupName);
+        userDto.setGroup(groupRepository.findByName(groupName));
         userRepository.save(UserMapper.toUser(userDto));
         if (!userRepository.findById(chatId).isEmpty()) {
             return sendWelcomeMessage(chatId);

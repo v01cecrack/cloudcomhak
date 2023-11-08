@@ -20,7 +20,4 @@ public class Group {   //TODO ID ID
     @Id
     @Column(name = "name")
     private String name;
-
-    @OneToMany(mappedBy = "group")
-    private List<User> users;
 }

@@ -1,5 +1,6 @@
 package com.example.tgbot.user;
 
+import com.example.tgbot.group.Group;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Scope;
@@ -23,6 +24,7 @@ public class User {
     String name;
     @Column
     String surname;
-    @Column(name = "group_name")
-    String group;
+    @ManyToOne
+    @JoinColumn(name = "group_name")
+    Group group;
 }
