@@ -26,6 +26,6 @@ public class DisciplineGroup {
     @JoinColumn(name = "discipline_id")
     private Discipline discipline;
     @ManyToOne
-    @JoinColumn(name = "group_name")
+    @JoinColumn(name = "group_name", referencedColumnName = "name")
     private Group group;
 }

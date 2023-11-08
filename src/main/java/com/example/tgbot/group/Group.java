@@ -1,23 +1,22 @@
 package com.example.tgbot.group;
 
-import com.example.tgbot.user.User;
 import lombok.*;
-import org.springframework.context.annotation.Scope;
 
 import javax.persistence.*;
-import java.util.List;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "Groups")
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-@ToString
-@Scope(value = "prototype")
-public class Group {   //TODO ID ID
+@AllArgsConstructor
+public class Group implements Serializable {
     @Id
-    @Column(name = "name")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    @Column(name = "name", unique = true, nullable = false, length = 50)
     private String name;
 }

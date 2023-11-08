@@ -24,7 +24,7 @@ public class User {
     String name;
     @Column
     String surname;
-    @ManyToOne
-    @JoinColumn(name = "group_name")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_name", referencedColumnName = "name")
     Group group;
 }
