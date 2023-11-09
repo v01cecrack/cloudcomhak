@@ -12,5 +12,7 @@ public interface TestRepository extends JpaRepository<Test, Long> {
 
     List<Test> findTestsByDisciplineName(@Param("disciplineName") String disciplineName);
 
+    List<Test> findAllByDisciplineName (String disciplineName);
+
 
 }
