@@ -42,4 +42,10 @@ public class TestService {
         testQuestionRepository.saveAll(testQuestions);
         log.info("Создан тест с названием {}", test.getTestName());
     }
+
+    public void updateTest(long id, Test test) {
+        test.setTestId(id);
+        testRepository.save(test);
+        log.info("Тест обновлен");
+    }
 }

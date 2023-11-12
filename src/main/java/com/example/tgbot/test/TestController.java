@@ -21,4 +21,9 @@ public class TestController {
     public void postTest(@PathVariable String disciplineName, @RequestBody TestRequest testRequest) {
         testService.postTest(disciplineName, testRequest);
     }
+
+    @PatchMapping("{id}")
+    public void updateTest(@PathVariable long id, Test test) {
+        testService.updateTest(id, test);
+    }
 }

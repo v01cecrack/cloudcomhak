@@ -28,5 +28,10 @@ public class DisciplineController {
         disciplineService.deleteDiscipline(id);
     }
 
+    @PatchMapping("/{id}")
+    public void updateDiscipline(@PathVariable Long id, @RequestBody Discipline discipline) {
+        disciplineService.updateDiscipline(id, discipline);
+    }
+
 
 }

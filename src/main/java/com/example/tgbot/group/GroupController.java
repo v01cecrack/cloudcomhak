@@ -27,4 +27,9 @@ public class GroupController {
     public void deleteGroup(@PathVariable long id) {
         groupService.deleteGroup(id);
     }
+
+    @PatchMapping("/{id}")
+    public void updateGroup(@PathVariable long id, @RequestBody Group group) {
+        groupService.updateGroup(id, group);
+    }
 }

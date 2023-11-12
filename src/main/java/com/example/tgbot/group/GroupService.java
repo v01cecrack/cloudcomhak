@@ -23,4 +23,10 @@ public class GroupService {
     public void deleteGroup(long id) {
         groupRepository.deleteById(id);
     }
+
+    public void updateGroup(long id, Group group) {
+        group.setId(id);
+        groupRepository.save(group);
+        log.info("Группа изменена");
+    }
 }

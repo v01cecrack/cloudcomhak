@@ -26,4 +26,10 @@ public class DisciplineService {
         log.info("Получен запрос на удаление дисциплины");
         disciplineRepository.deleteById(id);
     }
+
+    public void updateDiscipline(Long id, Discipline discipline) {
+        discipline.setId(id);
+        disciplineRepository.save(discipline);
+        log.info("Обновлена дисциплина");
+    }
 }
