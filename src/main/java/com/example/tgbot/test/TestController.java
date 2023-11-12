@@ -1,5 +1,6 @@
 package com.example.tgbot.test;
 
+import com.example.tgbot.question.Question;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +18,7 @@ public class TestController {
     }
 
     @PostMapping("/{disciplineName}")
-    public void postTest(@PathVariable String disciplineName, @RequestBody Test test) {
-        testService.postTest(disciplineName, test);
+    public void postTest(@PathVariable String disciplineName, @RequestBody TestRequest testRequest) {
+        testService.postTest(disciplineName, testRequest);
     }
 }
