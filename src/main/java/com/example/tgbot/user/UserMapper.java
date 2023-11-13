@@ -9,6 +9,8 @@ public class UserMapper {
                 .chatId(userDto.getChatId())
                 .name(userDto.getName())
                 .surname(userDto.getSurname())
+                .fatherName(userDto.getFatherName())
+                .university(userDto.getUniversity())
                 .group(userDto.getGroup())
                 .build();
     }
@@ -18,6 +20,8 @@ public class UserMapper {
                 .chatId(user.getChatId())
                 .name(user.getName())
                 .surname(user.getSurname())
+                .fatherName(user.getFatherName())
+                .university(user.getUniversity())
                 .group(user.getGroup())
                 .build();
     }

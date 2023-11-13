@@ -1,6 +1,7 @@
 package com.example.tgbot.user;
 
 import com.example.tgbot.group.Group;
+import com.example.tgbot.university.University;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Scope;
@@ -19,6 +20,8 @@ public class UserDto {
     long chatId;
     String name;
     String surname;
+    String fatherName;
+    University university;
     Group group;
     @Getter
     String state;
@@ -35,6 +38,14 @@ public class UserDto {
     }
     public void setStateSurname() {
         state = "SURNAME";
+    }
+
+    public void setStateFatherName() {
+        state = "FATHERNAME";
+    }
+
+    public void setStateUniversity() {
+        state = "UNIVERSITY";
     }
     public void setStateGroup() {
         state = "GROUP";

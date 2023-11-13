@@ -8,6 +8,7 @@ import com.example.tgbot.group.GroupRepository;
 import com.example.tgbot.result.ResultRepository;
 import com.example.tgbot.test.TestRepository;
 import com.example.tgbot.testquestion.TestQuestionRepository;
+import com.example.tgbot.university.UniversityRepository;
 import com.example.tgbot.user.UserDto;
 import com.example.tgbot.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ import java.util.Map;
 public class BotManager {
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
+    private final UniversityRepository universityRepository;
     private final TestQuestionRepository testQuestionRepository;
     private final DisciplineGroupRepository disciplineGroupRepository;
     private final TestRepository testRepository;
@@ -37,7 +39,7 @@ public class BotManager {
         UserDto userDto = new UserDto();
         TestData testData = new TestData();
         TestSession testSession = new TestSession();
-        BotService botService = new BotService(userRepository, groupRepository, testQuestionRepository, disciplineRepository, disciplineGroupRepository, testRepository, resultRepository, testData, testSession, userDto);
+        BotService botService = new BotService(userRepository, groupRepository, universityRepository, testQuestionRepository, disciplineRepository, disciplineGroupRepository, testRepository, resultRepository, testData, testSession, userDto);
 
         userBots.put(userId, botService);
         return botService;

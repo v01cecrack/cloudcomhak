@@ -14,6 +14,8 @@ import com.example.tgbot.result.ResultRepository;
 import com.example.tgbot.test.Test;
 import com.example.tgbot.test.TestRepository;
 import com.example.tgbot.testquestion.TestQuestionRepository;
+import com.example.tgbot.university.University;
+import com.example.tgbot.university.UniversityRepository;
 import com.example.tgbot.user.UserDto;
 import com.example.tgbot.user.UserMapper;
 import com.example.tgbot.user.UserRepository;
@@ -42,6 +44,7 @@ import java.util.stream.Collectors;
 public class BotService {
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
+    private final UniversityRepository universityRepository;
     private final TestQuestionRepository testQuestionRepository;
     private final DisciplineGroupRepository disciplineGroupRepository;
     private final TestRepository testRepository;
@@ -53,9 +56,10 @@ public class BotService {
     private UserDto userDto;
     private Long testId;
 
-    public BotService(UserRepository userRepository, GroupRepository groupRepository, TestQuestionRepository testQuestionRepository, DisciplineRepository disciplineRepository, DisciplineGroupRepository disciplineGroupRepository, TestRepository testRepository, ResultRepository resultRepository, TestData testData, TestSession testSession, UserDto userDto) {
+    public BotService(UserRepository userRepository, GroupRepository groupRepository, UniversityRepository universityRepository, TestQuestionRepository testQuestionRepository, DisciplineRepository disciplineRepository, DisciplineGroupRepository disciplineGroupRepository, TestRepository testRepository, ResultRepository resultRepository, TestData testData, TestSession testSession, UserDto userDto) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
+        this.universityRepository = universityRepository;
         this.testQuestionRepository = testQuestionRepository;
         this.disciplineRepository = disciplineRepository;
         this.disciplineGroupRepository = disciplineGroupRepository;
@@ -139,9 +143,21 @@ public class BotService {
 
     public SendMessage flagSurname(long chatId, String text) {
         userDto.setSurname(text);
-        List<Group> groups = groupRepository.findAll();
+        return sendTextMessage(chatId, "Введите ваше отчество");
+    }
+
+    public SendMessage flagFatherName(long chatId, String text) {
+        userDto.setFatherName(text);
+        List<University> universities = universityRepository.findAll();
+        List<String> universitiesNames = universities.stream().map(University::getName).collect(Collectors.toList());
+        return sendGroupButtons(chatId, universitiesNames, "Выберите университет:"); //TODO переименовать метод на более общий
+    }
+
+    public SendMessage flagUniversity(long chatId, String universityName) {
+        userDto.setUniversity(universityRepository.findByName(universityName));
+        List<Group> groups = groupRepository.findAll(); //TODO перенести в универ
         List<String> groupsNames = groups.stream().map(Group::getName).collect(Collectors.toList());
-        return sendGroupButtons(chatId, groupsNames);
+        return sendGroupButtons(chatId, groupsNames, "Выберите свою группу:");
     }
 
     public SendMessage flagTest(long chatId, String text) {
@@ -327,10 +343,10 @@ public class BotService {
         return inlineKeyboardMarkup;
     }
 
-    private SendMessage sendGroupButtons(long chatId, List<String> groupNames) {
+    private SendMessage sendGroupButtons(long chatId, List<String> groupNames, String text) {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
-        message.setText("Выберете свою группу:");
+        message.setText(text);
         InlineKeyboardMarkup keyboardMarkup = groupButtons(groupNames);
         message.setReplyMarkup(keyboardMarkup);
         return message;

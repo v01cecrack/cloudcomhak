@@ -155,6 +155,16 @@ public class Bot extends TelegramLongPollingBot {
                 }
                 return;
             }
+            if (botService.getUserDto().getState().equals("UNIVERSITY")) {
+                String universityName = update.getCallbackQuery().getData();
+                try {
+                    execute(botService.flagUniversity(chatId, universityName));
+                    botService.getUserDto().setStateGroup();
+                    return;
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
 
             if (botService.getUserDto().getState().equals("GROUP")) {
                 String groupName = update.getCallbackQuery().getData();
@@ -192,10 +202,18 @@ public class Bot extends TelegramLongPollingBot {
                 case "SURNAME":
                     try {
                         execute(botService.flagSurname(chatId, text));
-                        botService.getUserDto().setStateGroup();
+                        botService.getUserDto().setStateFatherName();
                         break;
                     } catch (TelegramApiException e) {
                         throw new RuntimeException();
+                    }
+                case "FATHERNAME":
+                    try {
+                        execute(botService.flagFatherName(chatId, text));
+                        botService.getUserDto().setStateUniversity();
+                        break;
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
                     }
                 case "TEST":
                     try {
