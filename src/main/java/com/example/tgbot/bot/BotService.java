@@ -132,17 +132,17 @@ public class BotService {
     public SendMessage flagStart(long chatId) {
 
         userDto.setChatId(chatId);
-        return sendTextMessage(chatId, "Введите ваше имя");
-    }
-
-    public SendMessage flagName(long chatId, String text) {
-        userDto.setName(text);
-//        flag = SURNAME;
         return sendTextMessage(chatId, "Введите вашу фамилию");
     }
 
-    public SendMessage flagSurname(long chatId, String text) {
+    public SendMessage flagName(long chatId, String text) {
         userDto.setSurname(text);
+//        flag = SURNAME;
+        return sendTextMessage(chatId, "Введите ваше имя");
+    }
+
+    public SendMessage flagSurname(long chatId, String text) {
+        userDto.setName(text);
         return sendTextMessage(chatId, "Введите ваше отчество");
     }
 
