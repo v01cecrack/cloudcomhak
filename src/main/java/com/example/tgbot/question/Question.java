@@ -23,5 +23,13 @@ public class Question {
     String questionText;
     @Column(name = "correct_answer")
     String questionAnswer;
+    @Column(name = "incorrect_answer1")
+    String incorrectAnswer1;
+    @Column(name = "incorrect_answer2")
+    String incorrectAnswer2;
+    @Column(name = "incorrect_answer3")
+    String incorrectAnswer3;
+    @Column(name = "incorrect_answer4")
+    String incorrectAnswer4;
 
 }

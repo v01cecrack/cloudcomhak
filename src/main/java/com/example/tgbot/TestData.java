@@ -15,6 +15,5 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Scope(value = "prototype")
 public class TestData {
-    List<String> questions;
-    List<String> correctAnswers;
+    private List<QuestionData> questions;
 }

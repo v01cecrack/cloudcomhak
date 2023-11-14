@@ -1,5 +1,6 @@
 package com.example.tgbot.bot;
 
+import com.example.tgbot.QuestionData;
 import com.example.tgbot.TestData;
 import com.example.tgbot.TestSession;
 import com.example.tgbot.discipline.Discipline;
@@ -33,6 +34,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,11 +54,12 @@ public class BotService {
     private final DisciplineRepository disciplineRepository;
 
     private TestData testData;
+    private List<QuestionData> questionDatas;
     private TestSession testSession;
     private UserDto userDto;
     private Long testId;
 
-    public BotService(UserRepository userRepository, GroupRepository groupRepository, UniversityRepository universityRepository, TestQuestionRepository testQuestionRepository, DisciplineRepository disciplineRepository, DisciplineGroupRepository disciplineGroupRepository, TestRepository testRepository, ResultRepository resultRepository, TestData testData, TestSession testSession, UserDto userDto) {
+    public BotService(UserRepository userRepository, GroupRepository groupRepository, UniversityRepository universityRepository, TestQuestionRepository testQuestionRepository, DisciplineRepository disciplineRepository, DisciplineGroupRepository disciplineGroupRepository, TestRepository testRepository, ResultRepository resultRepository, TestData testData, List<QuestionData> questionDatas, TestSession testSession, UserDto userDto) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.universityRepository = universityRepository;
@@ -65,6 +68,7 @@ public class BotService {
         this.disciplineGroupRepository = disciplineGroupRepository;
         this.testRepository = testRepository;
         this.resultRepository = resultRepository;
+        this.questionDatas = questionDatas;
         this.testData = testData;
         this.testSession = testSession;
         this.userDto = userDto;
@@ -107,6 +111,21 @@ public class BotService {
         }
         List<Question> questionList = testQuestionRepository.findQuestionsByTestId(testId);
 
+//        List<QuestionData> questionDataList = new ArrayList<>();
+        for (Question question : questionList) {
+            List<String> wrongAnswers = new ArrayList<>();
+            if (question.getIncorrectAnswer1() != null)
+                wrongAnswers.add(question.getIncorrectAnswer1());
+            if (question.getIncorrectAnswer2() != null)
+                wrongAnswers.add(question.getIncorrectAnswer2());
+            if (question.getIncorrectAnswer3() != null)
+                wrongAnswers.add(question.getIncorrectAnswer3());
+            if (question.getIncorrectAnswer4() != null)
+                wrongAnswers.add(question.getIncorrectAnswer4());
+            QuestionData questionData = new QuestionData(question.getQuestionText(), question.getQuestionAnswer(), wrongAnswers);
+            questionDatas.add(questionData);
+        }
+
         List<String> questions = questionList.stream()
                 .map(Question::getQuestionText)
                 .collect(Collectors.toList());
@@ -115,8 +134,8 @@ public class BotService {
                 .map(Question::getQuestionAnswer)
                 .collect(Collectors.toList());
 
-        testData.setQuestions(questions);
-        testData.setCorrectAnswers(answers);
+        testData.setQuestions(questionDatas);
+//        testData.setCorrectAnswers(answers);
         return sendTextMessage(chatId, "Вы выбрали тест " + testName + " \n чтобы начать отправьте любой текст");
     }
 
@@ -161,26 +180,32 @@ public class BotService {
     }
 
     public SendMessage flagTest(long chatId, String text) {
-        if (testSession.getCurrentQuestion() <= testData.getQuestions().size()) {
+        if (testSession.getCurrentQuestion() <= questionDatas.size()) {
             if (testSession.getCurrentQuestion() != 0) {
                 testSession.userAnswers.add(text);
             }
             testSession.currentQuestion++;
-            if (testSession.currentQuestion <= testData.getQuestions().size()) {
-                return sendTextMessage(chatId, testData.getQuestions().get(testSession.getCurrentQuestion() - 1));
+            if (testSession.currentQuestion <= questionDatas.size()) {
+                if (questionDatas.get(testSession.getCurrentQuestion() - 1).getIncorrectAnswers().isEmpty()) {
+                    return sendTextMessage(chatId, questionDatas.get(testSession.getCurrentQuestion() - 1).getQuestionText());
+                } else {
+                    List<String> answerOptions = questionDatas.get(testSession.getCurrentQuestion() - 1).getIncorrectAnswers();
+                    answerOptions.add(questionDatas.get(testSession.getCurrentQuestion() - 1).getCorrectAnswer());
+                    Collections.shuffle(answerOptions);
+                    return sendGroupButtons(chatId, answerOptions, questionDatas.get(testSession.getCurrentQuestion() - 1).getQuestionText());
+                }
             }
         }
-        int questionsCount = testData.getQuestions().size();
+        int questionCount = testData.getQuestions().size();
         int correctQuestions = 0;
-        for (int i = 0; i < questionsCount; i++) {
-            if (testSession.userAnswers.get(i).equalsIgnoreCase(testData.getCorrectAnswers().get(i))) {
+        for (int i = 0; i < questionCount; i++) {
+            if (testSession.userAnswers.get(i).equalsIgnoreCase(questionDatas.get(i).getCorrectAnswer())) {
                 correctQuestions++;
             }
         }
-        String textResult = "Вы ответили правильно на " + correctQuestions + " из " + questionsCount;
+        String textResult = "Вы ответили правильно на " + correctQuestions + " из " + questionCount;
         clearSession();
         return sendTextMessage(chatId, textResult);
-
     }
 
     public void clearSession() {
@@ -200,7 +225,7 @@ public class BotService {
         testSession.currentQuestion = 0;
         testSession.userAnswers.clear();
         testData.getQuestions().clear();
-        testData.getCorrectAnswers().clear();
+        questionDatas.clear();
     }
 
     public SendMessage sendTextMessage(Long chatId, String text) {
@@ -343,7 +368,7 @@ public class BotService {
         return inlineKeyboardMarkup;
     }
 
-    private SendMessage sendGroupButtons(long chatId, List<String> groupNames, String text) {
+    private SendMessage sendGroupButtons(long chatId, List<String> groupNames, String text) { //TODO переименовать
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(text);

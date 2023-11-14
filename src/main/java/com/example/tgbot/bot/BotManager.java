@@ -1,5 +1,6 @@
 package com.example.tgbot.bot;
 
+import com.example.tgbot.QuestionData;
 import com.example.tgbot.TestData;
 import com.example.tgbot.TestSession;
 import com.example.tgbot.discipline.DisciplineRepository;
@@ -17,7 +18,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -39,7 +42,8 @@ public class BotManager {
         UserDto userDto = new UserDto();
         TestData testData = new TestData();
         TestSession testSession = new TestSession();
-        BotService botService = new BotService(userRepository, groupRepository, universityRepository, testQuestionRepository, disciplineRepository, disciplineGroupRepository, testRepository, resultRepository, testData, testSession, userDto);
+        List<QuestionData> questionDatas = new ArrayList<>();
+        BotService botService = new BotService(userRepository, groupRepository, universityRepository, testQuestionRepository, disciplineRepository, disciplineGroupRepository, testRepository, resultRepository, testData, questionDatas, testSession, userDto);
 
         userBots.put(userId, botService);
         return botService;

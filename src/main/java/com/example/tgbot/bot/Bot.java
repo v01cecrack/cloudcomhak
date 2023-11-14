@@ -176,6 +176,22 @@ public class Bot extends TelegramLongPollingBot {
                 }
             }
 
+            if (botService.getUserDto().getState().equals("TEST")) {
+                try {
+                    String text = update.getCallbackQuery().getData();
+                    SendMessage sendMessage = botService.flagTest(chatId, text);
+                    execute(sendMessage);
+                    String regex = "Вы ответили правильно на \\d+ из \\d+";
+                    if (sendMessage.getText().matches(regex)) {
+                        botService.getUserDto().setStateZero();
+                    } else {
+                        return;
+                    }
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException();
+                }
+            }
+
         }
 
         if (update.getMessage().hasText()) {
