@@ -9,7 +9,9 @@ import com.example.tgbot.disciplinegroup.DisciplineGroup;
 import com.example.tgbot.disciplinegroup.DisciplineGroupRepository;
 import com.example.tgbot.group.Group;
 import com.example.tgbot.group.GroupRepository;
-import com.example.tgbot.question.Question;
+import com.example.tgbot.questionAnswer.Answer;
+import com.example.tgbot.questionAnswer.AnswerRepository;
+import com.example.tgbot.questionAnswer.Question;
 import com.example.tgbot.result.Result;
 import com.example.tgbot.result.ResultRepository;
 import com.example.tgbot.test.Test;
@@ -52,6 +54,7 @@ public class BotService {
     private final TestRepository testRepository;
     private final ResultRepository resultRepository;
     private final DisciplineRepository disciplineRepository;
+    private final AnswerRepository answerRepository;
 
     private TestData testData;
     private List<QuestionData> questionDatas;
@@ -59,7 +62,7 @@ public class BotService {
     private UserDto userDto;
     private Long testId;
 
-    public BotService(UserRepository userRepository, GroupRepository groupRepository, UniversityRepository universityRepository, TestQuestionRepository testQuestionRepository, DisciplineRepository disciplineRepository, DisciplineGroupRepository disciplineGroupRepository, TestRepository testRepository, ResultRepository resultRepository, TestData testData, List<QuestionData> questionDatas, TestSession testSession, UserDto userDto) {
+    public BotService(UserRepository userRepository, GroupRepository groupRepository, UniversityRepository universityRepository, TestQuestionRepository testQuestionRepository, DisciplineRepository disciplineRepository, DisciplineGroupRepository disciplineGroupRepository, TestRepository testRepository, ResultRepository resultRepository, AnswerRepository answerRepository, TestData testData, List<QuestionData> questionDatas, TestSession testSession, UserDto userDto) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.universityRepository = universityRepository;
@@ -68,6 +71,7 @@ public class BotService {
         this.disciplineGroupRepository = disciplineGroupRepository;
         this.testRepository = testRepository;
         this.resultRepository = resultRepository;
+        this.answerRepository = answerRepository;
         this.questionDatas = questionDatas;
         this.testData = testData;
         this.testSession = testSession;
@@ -109,32 +113,41 @@ public class BotService {
         if (resultRepository.findFirstByUserAndTest(UserMapper.toUser(userDto), test).isPresent()) {
             return sendTextMessage(chatId, "Тест можно пройти только 1 раз");
         }
+        // TODO поменять заполнение questionData
         List<Question> questionList = testQuestionRepository.findQuestionsByTestId(testId);
 
 //        List<QuestionData> questionDataList = new ArrayList<>();
-        for (Question question : questionList) {
-            List<String> wrongAnswers = new ArrayList<>();
-            if (question.getIncorrectAnswer1() != null)
-                wrongAnswers.add(question.getIncorrectAnswer1());
-            if (question.getIncorrectAnswer2() != null)
-                wrongAnswers.add(question.getIncorrectAnswer2());
-            if (question.getIncorrectAnswer3() != null)
-                wrongAnswers.add(question.getIncorrectAnswer3());
-            if (question.getIncorrectAnswer4() != null)
-                wrongAnswers.add(question.getIncorrectAnswer4());
-            QuestionData questionData = new QuestionData(question.getQuestionText(), question.getQuestionAnswer(), wrongAnswers);
+//        for (Question question : questionList) {
+//            List<String> wrongAnswers = new ArrayList<>();
+//            if (question.getIncorrectAnswer1() != null)
+//                wrongAnswers.add(question.getIncorrectAnswer1());
+//            if (question.getIncorrectAnswer2() != null)
+//                wrongAnswers.add(question.getIncorrectAnswer2());
+//            if (question.getIncorrectAnswer3() != null)
+//                wrongAnswers.add(question.getIncorrectAnswer3());
+//            if (question.getIncorrectAnswer4() != null)
+//                wrongAnswers.add(question.getIncorrectAnswer4());
+//            QuestionData questionData = new QuestionData(question.getQuestionText(), question.getQuestionAnswer(), wrongAnswers);
+//            questionDatas.add(questionData);
+//        }
+
+        for (Question question: questionList) {
+            Answer correctAnswer = answerRepository.findByQuestion_IdAndCorrectIsTrue(question.getId());
+            List<Answer> answers = answerRepository.findAllByQuestion_IdAndCorrectIsFalse(question.getId());
+            List<String> incorrectAnswers = answers.stream().map(Answer::getAnswer).collect(Collectors.toList());
+            QuestionData questionData = new QuestionData(question.getQuestionText(), correctAnswer.getAnswer(), incorrectAnswers);
             questionDatas.add(questionData);
         }
 
-        List<String> questions = questionList.stream()
-                .map(Question::getQuestionText)
-                .collect(Collectors.toList());
+//        List<String> questions = questionList.stream()
+//                .map(Question::getQuestionText)
+//                .collect(Collectors.toList());
+//
+//        List<String> answers = questionList.stream()
+//                .map(Question::getQuestionAnswer)
+//                .collect(Collectors.toList());
 
-        List<String> answers = questionList.stream()
-                .map(Question::getQuestionAnswer)
-                .collect(Collectors.toList());
-
-        testData.setQuestions(questionDatas);
+        testData.setQuestions(questionDatas); //TODO delete useless testData unused really;
 //        testData.setCorrectAnswers(answers);
         return sendTextMessage(chatId, "Вы выбрали тест " + testName + " \n чтобы начать отправьте любой текст");
     }
@@ -174,7 +187,7 @@ public class BotService {
 
     public SendMessage flagUniversity(long chatId, String universityName) {
         userDto.setUniversity(universityRepository.findByName(universityName));
-        List<Group> groups = groupRepository.findAll(); //TODO перенести в универ
+        List<Group> groups = groupRepository.findAll();
         List<String> groupsNames = groups.stream().map(Group::getName).collect(Collectors.toList());
         return sendGroupButtons(chatId, groupsNames, "Выберите свою группу:");
     }
@@ -245,23 +258,24 @@ public class BotService {
     public SendMessage statisticsByDiscipline(long chatId, String disciplineName) {
         List<Object[]> resultsList = resultRepository.getUserStatisticsByDiscipline(chatId, disciplineName);
         StringBuilder result = new StringBuilder();
-        BigInteger totalAnswers = BigInteger.ZERO;
-        BigInteger totalCorrectAnswers = BigInteger.ZERO;
+
+        int totalCorrectAnswers = 0;
+        int totalQuestions = 0;
 
         for (Object[] object : resultsList) {
-            BigInteger correctAnswers = (BigInteger) object[4];
-            BigInteger total = (BigInteger) object[3];
-            totalCorrectAnswers = totalCorrectAnswers.add(correctAnswers);
-            totalAnswers = totalAnswers.add(total);
-            double percentage = total.doubleValue() > 0 ? (correctAnswers.doubleValue() / total.doubleValue()) * 100.0 : 0.0;
-            result.append(object[1]).append(": ").append(correctAnswers).append("/").append(total).append(" (").append(String.format("%.1f%%", percentage)).append(")\n");
+            String testName = object[1].toString();
+            String correctAnswers = object[4].toString();
+            String totalAnswers = object[3].toString();
+            int correct = Integer.parseInt(correctAnswers);
+            int total = Integer.parseInt(totalAnswers);
+            totalCorrectAnswers += correct;
+            totalQuestions += total;
+            result.append(testName).append(": ").append(correctAnswers).append("/").append(total).append(" (").append((correct * 100) / total).append("%)\n");
         }
-
-        double totalPercentage = totalAnswers.doubleValue() > 0 ? (totalCorrectAnswers.doubleValue() / totalAnswers.doubleValue()) * 100.0 : 0.0;
-        result.append("Общий итог: ").append(totalCorrectAnswers).append("/").append(totalAnswers).append(" (").append(String.format("%.1f%%", totalPercentage)).append(")");
+        result.append("Общий итог: ").append(totalCorrectAnswers).append("/").append(totalQuestions).append(" (").append((totalCorrectAnswers * 100) / totalQuestions).append("%)");
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
-        message.setText(String.valueOf(result));
+        message.setText(result.toString());
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<InlineKeyboardButton> row = new ArrayList<>();
@@ -270,7 +284,6 @@ public class BotService {
         inlineKeyboardMarkup.setKeyboard(keyboard);
         message.setReplyMarkup(inlineKeyboardMarkup);
         return message;
-
     }
 
     private InlineKeyboardMarkup createKeyboard() {

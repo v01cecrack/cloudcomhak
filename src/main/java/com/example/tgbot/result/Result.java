@@ -1,6 +1,6 @@
 package com.example.tgbot.result;
 
-import com.example.tgbot.question.Question;
+import com.example.tgbot.questionAnswer.Question;
 import com.example.tgbot.test.Test;
 import com.example.tgbot.user.User;
 import lombok.*;

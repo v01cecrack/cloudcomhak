@@ -1,6 +1,6 @@
 package com.example.tgbot.test;
 
-import com.example.tgbot.question.Question;
+import com.example.tgbot.questionAnswer.Question;
 import lombok.Getter;
 import lombok.Setter;
 

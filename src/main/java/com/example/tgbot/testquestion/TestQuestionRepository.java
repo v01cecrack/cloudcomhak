@@ -1,6 +1,6 @@
 package com.example.tgbot.testquestion;
 
-import com.example.tgbot.question.Question;
+import com.example.tgbot.questionAnswer.Question;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

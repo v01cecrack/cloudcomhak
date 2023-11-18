@@ -6,6 +6,7 @@ import com.example.tgbot.TestSession;
 import com.example.tgbot.discipline.DisciplineRepository;
 import com.example.tgbot.disciplinegroup.DisciplineGroupRepository;
 import com.example.tgbot.group.GroupRepository;
+import com.example.tgbot.questionAnswer.AnswerRepository;
 import com.example.tgbot.result.ResultRepository;
 import com.example.tgbot.test.TestRepository;
 import com.example.tgbot.testquestion.TestQuestionRepository;
@@ -36,6 +37,7 @@ public class BotManager {
     private final TestRepository testRepository;
     private final ResultRepository resultRepository;
     private final DisciplineRepository disciplineRepository;
+    private final AnswerRepository answerRepository;
     public Map<Long, BotService> userBots = new HashMap<>();
 
     public BotService createBotForUser(long userId) {
@@ -43,7 +45,7 @@ public class BotManager {
         TestData testData = new TestData();
         TestSession testSession = new TestSession();
         List<QuestionData> questionDatas = new ArrayList<>();
-        BotService botService = new BotService(userRepository, groupRepository, universityRepository, testQuestionRepository, disciplineRepository, disciplineGroupRepository, testRepository, resultRepository, testData, questionDatas, testSession, userDto);
+        BotService botService = new BotService(userRepository, groupRepository, universityRepository, testQuestionRepository, disciplineRepository, disciplineGroupRepository, testRepository, resultRepository, answerRepository, testData, questionDatas, testSession, userDto);
 
         userBots.put(userId, botService);
         return botService;

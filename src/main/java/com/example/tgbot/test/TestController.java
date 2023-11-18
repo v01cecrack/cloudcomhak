@@ -1,6 +1,5 @@
 package com.example.tgbot.test;
 
-import com.example.tgbot.question.Question;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

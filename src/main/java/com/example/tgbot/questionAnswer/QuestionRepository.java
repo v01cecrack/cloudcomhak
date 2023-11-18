@@ -1,4 +1,4 @@
-package com.example.tgbot.question;
+package com.example.tgbot.questionAnswer;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.repository.JpaRepository;

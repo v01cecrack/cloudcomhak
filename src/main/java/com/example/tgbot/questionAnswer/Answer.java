@@ -1,7 +1,5 @@
-package com.example.tgbot.testquestion;
+package com.example.tgbot.questionAnswer;
 
-import com.example.tgbot.questionAnswer.Question;
-import com.example.tgbot.test.Test;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Scope;
@@ -9,23 +7,23 @@ import org.springframework.context.annotation.Scope;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "Test_Questions")
+@Table(name = "Answers")
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Scope(value = "prototype")
-public class TestQuestion {
+public class Answer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-            @Column()
     Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "test_id")
-    Test test;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
     Question question;
+    @Column
+    String answer;
+    @Column
+    Boolean correct;
 }

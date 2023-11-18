@@ -1,7 +1,7 @@
 package com.example.tgbot.test;
 
-import com.example.tgbot.question.Question;
-import com.example.tgbot.question.QuestionRepository;
+import com.example.tgbot.questionAnswer.Question;
+import com.example.tgbot.questionAnswer.QuestionRepository;
 import com.example.tgbot.testquestion.TestQuestion;
 import com.example.tgbot.testquestion.TestQuestionRepository;
 import lombok.RequiredArgsConstructor;
