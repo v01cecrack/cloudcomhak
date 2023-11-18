@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 @Scope(value = "prototype")
 public interface QuestionRepository extends JpaRepository<Question, Long> {
-
+    Question findByQuestionText(String text);
 }

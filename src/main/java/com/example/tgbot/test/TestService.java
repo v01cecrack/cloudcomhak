@@ -1,5 +1,7 @@
 package com.example.tgbot.test;
 
+import com.example.tgbot.questionAnswer.Answer;
+import com.example.tgbot.questionAnswer.AnswerRepository;
 import com.example.tgbot.questionAnswer.Question;
 import com.example.tgbot.questionAnswer.QuestionRepository;
 import com.example.tgbot.testquestion.TestQuestion;
@@ -18,6 +20,7 @@ import java.util.List;
 public class TestService {
     private final TestRepository testRepository;
     private final QuestionRepository questionRepository;
+    private final AnswerRepository answerRepository;
     private final TestQuestionRepository testQuestionRepository;
 
     public List<Test> getTests(String disciplineName) {
@@ -28,9 +31,14 @@ public class TestService {
     public void postTest(String disciplineName, TestRequest testRequest) {
         Test test = testRequest.getTest();
         List<Question> questions = testRequest.getQuestions();
+        List<Answer> answers = testRequest.getAnswers();
         test.setDisciplineName(disciplineName);
         testRepository.save(test);
         questionRepository.saveAll(questions);
+        for (Answer answer : answers) {
+            answer.setQuestion(questionRepository.findByQuestionText(answer.getQuestion().getQuestionText()));
+        }
+        answerRepository.saveAll(answers);
 
         List<TestQuestion> testQuestions = new ArrayList<>();
         for (Question question : questions) {

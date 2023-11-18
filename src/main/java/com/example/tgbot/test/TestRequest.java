@@ -1,5 +1,6 @@
 package com.example.tgbot.test;
 
+import com.example.tgbot.questionAnswer.Answer;
 import com.example.tgbot.questionAnswer.Question;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,4 +12,5 @@ import java.util.List;
 public class TestRequest {
     private Test test;
     private List<Question> questions;
+    private List<Answer> answers;
 }
