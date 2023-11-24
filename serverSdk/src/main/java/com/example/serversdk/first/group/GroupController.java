@@ -1,5 +1,6 @@
 package com.example.serversdk.first.group;
 
+import com.example.serversdk.first.user.StudentDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -32,4 +33,10 @@ public class GroupController {
     public void updateGroup(@PathVariable long id, @RequestBody Group group) {
         groupService.updateGroup(id, group);
     }
+
+    @GetMapping("/{groupName}")
+    public List<StudentDto> getStudentsOfGroup(@PathVariable String groupName) {
+        return groupService.getStudentsOfGroup(groupName);
+    }
+
 }

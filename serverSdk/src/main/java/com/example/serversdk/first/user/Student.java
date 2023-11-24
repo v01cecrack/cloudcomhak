@@ -1,7 +1,7 @@
-package com.example.tgbot.user;
+package com.example.serversdk.first.user;
 
-import com.example.tgbot.group.Group;
-import com.example.tgbot.university.University;
+import com.example.serversdk.first.group.Group;
+import com.example.serversdk.first.university.University;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Scope;
@@ -17,7 +17,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Scope(value = "prototype")
-public class User {
+public class Student {
     @Id
     @Column(name = "chat_id")
     Long chatId;

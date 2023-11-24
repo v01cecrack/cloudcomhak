@@ -1,5 +1,7 @@
 package com.example.serversdk.first.group;
 
+import com.example.serversdk.first.user.StudentDto;
+import com.example.serversdk.first.user.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GroupService {
     private final GroupRepository groupRepository;
+    private final StudentRepository studentRepository;
 
     public List<Group> getGroups() {
         return groupRepository.findAll();
@@ -29,4 +32,9 @@ public class GroupService {
         groupRepository.save(group);
         log.info("Группа изменена");
     }
+
+    public List<StudentDto> getStudentsOfGroup(String groupName) {
+        return studentRepository.findStudentsByGroupName(groupName);
+    }
+
 }

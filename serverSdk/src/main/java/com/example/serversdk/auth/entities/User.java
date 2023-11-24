@@ -4,13 +4,15 @@ import com.example.serversdk.first.group.Group;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.Valid;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
 import java.util.Collection;
 
 @Entity
 @Data
 @Table(name = "Users")
+@Valid
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,11 +20,11 @@ public class User {
     private Long id;
 
     @Column(name = "username")
-    @NotNull
+    @NotEmpty
     private String username;
 
     @Column(name = "password")
-    @NotNull
+    @NotEmpty
     private String password;
 
     @Column(name = "email")
