@@ -37,4 +37,8 @@ public class GroupService {
         return studentRepository.findStudentsByGroupName(groupName);
     }
 
+    public void deleteStudent(Long chatId) {
+        studentRepository.deleteStudentByChatId(chatId);
+    }
+
 }

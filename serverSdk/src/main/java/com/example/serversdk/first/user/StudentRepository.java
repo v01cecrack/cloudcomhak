@@ -17,4 +17,6 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
             "WHERE G.name = :groupName")
     List<StudentDto> findStudentsByGroupName(@Param("groupName") String groupName);
 
+    void deleteStudentByChatId(Long chatId);
+
 }

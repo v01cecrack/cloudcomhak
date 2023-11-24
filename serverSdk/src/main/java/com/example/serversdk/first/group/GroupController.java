@@ -39,4 +39,9 @@ public class GroupController {
         return groupService.getStudentsOfGroup(groupName);
     }
 
+    @DeleteMapping("/{chatId}")
+    public void deleteStudent(@PathVariable long chatId) {
+        groupService.deleteStudent(chatId);
+    }
+
 }
