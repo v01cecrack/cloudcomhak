@@ -16,12 +16,12 @@ import javax.persistence.*;
 public class Test {
     @Id
     @Column(name = "test_id")
-    Long testId;
+    Long Id;
 
     @Column(name = "test_name")
     String testName;
 
     @ManyToOne
-    @JoinColumn(name = "discipline_id")
+    @JoinColumn(name = "discipline_name", referencedColumnName = "name")
     Discipline discipline;
 }

@@ -8,6 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface TestQuestionRepository extends JpaRepository<TestQuestion, Long> {
-    @Query("SELECT tq.question FROM TestQuestion tq WHERE tq.test.testId = :testId")
+    @Query("SELECT tq.question FROM TestQuestion tq WHERE tq.test.Id = :testId")
     List<Question> findQuestionsByTestId(@Param("testId") Long testId);
 }

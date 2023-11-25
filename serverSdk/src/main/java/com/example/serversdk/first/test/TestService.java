@@ -1,5 +1,6 @@
 package com.example.serversdk.first.test;
 
+import com.example.serversdk.first.discipline.DisciplineRepository;
 import com.example.serversdk.first.questionAnswer.Answer;
 import com.example.serversdk.first.questionAnswer.AnswerRepository;
 import com.example.serversdk.first.questionAnswer.Question;
@@ -22,22 +23,25 @@ public class TestService {
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
     private final TestQuestionRepository testQuestionRepository;
+    private final DisciplineRepository disciplineRepository;
 
     public List<Test> getTests(String disciplineName) {
         return testRepository.findTestsByDisciplineName(disciplineName);
     }
 
     public void updateTest(long id, Test test) {
-        test.setTestId(id);
+        test.setId(id);
         testRepository.save(test);
         log.info("Тест обновлен");
     }
 
     @Transactional
-    public void createNewTest(TestRequest testRequest) {
+    public void createNewTest(TestRequest testRequest, String disciplineName) {
         Test test = testRequest.getTest();
+        test.setDiscipline(disciplineRepository.findByName(disciplineName));
         List<Question> questions = testRequest.getQuestions();
         List<Answer> answers = testRequest.getAnswers();
+        answers.forEach(answer -> answer.setCorrect(answer.getCorrect() != null ? answer.getCorrect() : false));
         testRepository.save(test);
         questionRepository.saveAll(questions);
         answerRepository.saveAll(answers);

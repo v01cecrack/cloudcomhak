@@ -17,7 +17,7 @@ public interface ResultRepository extends JpaRepository<Result, Long> {
     @Query("select D.name, T.testName, U.chatId, COUNT(DISTINCT R.id) AS total_answers, SUM(CASE WHEN R.answer = A.answer AND A.correct = true then 1 else 0 end) as correct_answers " +
             "FROM Student U " +
             "JOIN Result R ON U.chatId = R.user.chatId " +
-            "JOIN Test T ON R.test.testId = T.testId " +
+            "JOIN Test T ON R.test.Id = T.Id " +
             "JOIN Question Q ON R.question.id = Q.id " +
             "JOIN Answer A ON Q.id = A.question.id " +
             "JOIN Discipline D ON T.discipline.name = D.name " +
