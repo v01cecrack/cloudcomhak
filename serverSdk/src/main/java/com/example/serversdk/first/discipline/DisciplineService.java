@@ -4,6 +4,14 @@ import com.example.serversdk.first.disciplinegroup.DisciplineGroup;
 import com.example.serversdk.first.disciplinegroup.DisciplineGroupRepository;
 import com.example.serversdk.first.group.Group;
 import com.example.serversdk.first.group.GroupRepository;
+import com.example.serversdk.first.questionAnswer.Answer;
+import com.example.serversdk.first.questionAnswer.AnswerRepository;
+import com.example.serversdk.first.questionAnswer.Question;
+import com.example.serversdk.first.questionAnswer.QuestionRepository;
+import com.example.serversdk.first.test.Test;
+import com.example.serversdk.first.test.TestRepository;
+import com.example.serversdk.first.testquestion.TestQuestionRepository;
+import com.example.serversdk.result.ResultRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,8 +25,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DisciplineService {
     private final DisciplineRepository disciplineRepository;
-    private final GroupRepository groupRepository;
     private final DisciplineGroupRepository disciplineGroupRepository;
+    private final TestRepository testRepository;
+    private final TestQuestionRepository testQuestionRepository;
+    private final QuestionRepository questionRepository;
+    private final AnswerRepository answerRepository;
+    private final ResultRepository resultRepository;
+
 
     public List<Discipline> getDisciplines() {
         log.info("Получен запрос на получение всех дисциплин");
@@ -41,8 +54,12 @@ public class DisciplineService {
         }
     }
 
+    @Transactional
     public void deleteDiscipline(Long id) {
         log.info("Получен запрос на удаление дисциплины");
+        disciplineGroupRepository.deleteAllByDiscipline_Id(id);
+        List<Test> tests = testRepository.findAllByDiscipline_Id(id);
+        testQuestionRepository.deleteAllByTestIn(tests);
         disciplineRepository.deleteById(id);
     }
 

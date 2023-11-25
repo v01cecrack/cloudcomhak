@@ -1,5 +1,6 @@
 package com.example.serversdk.first.user;
 
+import com.example.serversdk.first.group.Group;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,5 +19,9 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     List<StudentDto> findStudentsByGroupName(@Param("groupName") String groupName);
 
     void deleteStudentByChatId(Long chatId);
+
+    List<Student> findAllByGroup_Id(Long id);
+
+    void deleteAllByGroup_Id(Long id);
 
 }

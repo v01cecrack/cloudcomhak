@@ -10,4 +10,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     Question findByQuestionText(String text);
 
     List<Question> findAllById(Long id);
+
+    List<Question> findAllByIdIn(List<Long> ids);
+
 }

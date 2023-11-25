@@ -26,5 +26,9 @@ public interface ResultRepository extends JpaRepository<Result, Long> {
     )
     List<Object[]> getUserStatisticsByDiscipline(@Param("userId") long userId, @Param("disciplineName") String disciplineName);
 
+    void deleteAllByQuestion_IdIn(List<Long> questionIds);
+
+    void deleteAllByUserIn(List<Student> students);
+
 
 }

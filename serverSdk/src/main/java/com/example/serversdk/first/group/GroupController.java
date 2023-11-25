@@ -1,6 +1,8 @@
 package com.example.serversdk.first.group;
 
+import com.example.serversdk.auth.repositories.UserRepository;
 import com.example.serversdk.first.user.StudentDto;
+import com.example.serversdk.first.user.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +15,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GroupController {
     private final GroupService groupService;
+    private final StudentRepository studentRepository;
+    private final UserRepository userRepository;
 
     @GetMapping
     public List<Group> getGroups() {
@@ -26,6 +30,7 @@ public class GroupController {
 
     @DeleteMapping("/{id}")
     public void deleteGroup(@PathVariable long id) {
+
         groupService.deleteGroup(id);
     }
 
