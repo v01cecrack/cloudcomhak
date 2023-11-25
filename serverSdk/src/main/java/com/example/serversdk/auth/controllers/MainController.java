@@ -18,7 +18,7 @@ public class MainController {
         return "Secured Data";
     }
 
-    @GetMapping("/admin")
+    @GetMapping("/adminn")
     public String adminData() {
         return "Admin Data";
     }
