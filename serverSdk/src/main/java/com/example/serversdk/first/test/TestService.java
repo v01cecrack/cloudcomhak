@@ -27,33 +27,20 @@ public class TestService {
         return testRepository.findTestsByDisciplineName(disciplineName);
     }
 
-    @Transactional
-    public void postTest(String disciplineName, TestRequest testRequest) {
-        Test test = testRequest.getTest();
-        List<Question> questions = testRequest.getQuestions();
-        List<Answer> answers = testRequest.getAnswers();
-        test.setDisciplineName(disciplineName);
-        testRepository.save(test);
-        questionRepository.saveAll(questions);
-        for (Answer answer : answers) {
-            answer.setQuestion(questionRepository.findByQuestionText(answer.getQuestion().getQuestionText()));
-        }
-        answerRepository.saveAll(answers);
-
-        List<TestQuestion> testQuestions = new ArrayList<>();
-        for (Question question : questions) {
-            TestQuestion testQuestion = new TestQuestion();
-            testQuestion.setTest(test);
-            testQuestion.setQuestion(question);
-            testQuestions.add(testQuestion);
-        }
-        testQuestionRepository.saveAll(testQuestions);
-        log.info("Создан тест с названием {}", test.getTestName());
-    }
-
     public void updateTest(long id, Test test) {
         test.setTestId(id);
         testRepository.save(test);
         log.info("Тест обновлен");
+    }
+
+    @Transactional
+    public void createNewTest (TestRequest testRequest) {
+        Test test = testRequest.getTest();
+        List<Question> questions = testRequest.getQuestions();
+        List<Answer> answers = testRequest.getAnswers();
+        testRepository.save(test);
+        questionRepository.saveAll(questions);
+        answerRepository.saveAll(answers);
+        log.info("Создан тест с названием {}", test.getTestName());
     }
 }

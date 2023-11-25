@@ -20,7 +20,7 @@ public interface ResultRepository extends JpaRepository<Result, Long> {
             "JOIN Test T ON R.test.testId = T.testId " +
             "JOIN Question Q ON R.question.id = Q.id " +
             "JOIN Answer A ON Q.id = A.question.id " +
-            "JOIN Discipline D ON T.disciplineName = D.name " +
+            "JOIN Discipline D ON T.discipline.name = D.name " +
             "WHERE U.chatId = :userId AND D.name = :disciplineName " +
             "GROUP BY D.name, T.testName, U.chatId"
     )

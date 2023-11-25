@@ -18,7 +18,7 @@ public class TestController {
 
     @PostMapping("/{disciplineName}")
     public void postTest(@PathVariable String disciplineName, @RequestBody TestRequest testRequest) {
-        testService.postTest(disciplineName, testRequest);
+        testService.createNewTest(testRequest);
     }
 
     @PatchMapping("{id}")

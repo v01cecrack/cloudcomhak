@@ -17,7 +17,6 @@ import javax.persistence.*;
 @Scope(value = "prototype")
 public class Answer {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")

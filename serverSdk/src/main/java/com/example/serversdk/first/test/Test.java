@@ -1,5 +1,6 @@
 package com.example.serversdk.first.test;
 
+import com.example.serversdk.first.discipline.Discipline;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -21,6 +22,7 @@ public class Test {
     @Column(name = "test_name")
     String testName;
 
-    @Column(name = "discipline_name")
-    String disciplineName;
+    @ManyToOne
+    @JoinColumn(name = "discipline_name")
+    Discipline discipline;
 }

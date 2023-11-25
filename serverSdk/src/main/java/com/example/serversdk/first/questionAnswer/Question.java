@@ -17,7 +17,6 @@ import javax.persistence.*;
 @Scope(value = "prototype")
 public class Question {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     @Column(name = "question_text")
     String questionText;
