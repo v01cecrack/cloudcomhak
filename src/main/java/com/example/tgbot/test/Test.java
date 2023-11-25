@@ -23,6 +23,7 @@ public class Test {
     @Column(name = "test_name")
     String testName;
 
-    @Column(name = "discipline_name")
-    String disciplineName;
+    @ManyToOne
+    @JoinColumn(name = "discipline_id")
+    Discipline discipline;
 }
