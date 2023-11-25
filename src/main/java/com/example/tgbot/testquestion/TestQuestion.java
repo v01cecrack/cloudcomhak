@@ -20,7 +20,6 @@ import javax.persistence.*;
 public class TestQuestion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-            @Column()
     Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "test_id")

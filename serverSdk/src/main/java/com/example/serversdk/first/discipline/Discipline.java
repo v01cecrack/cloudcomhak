@@ -5,6 +5,7 @@ import org.checkerframework.common.aliasing.qual.Unique;
 import org.springframework.context.annotation.Scope;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "Disciplines")
@@ -15,7 +16,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @ToString
 @Scope(value = "prototype")
-public class Discipline {
+public class Discipline implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

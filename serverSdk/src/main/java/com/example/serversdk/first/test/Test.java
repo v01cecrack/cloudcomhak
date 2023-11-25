@@ -15,7 +15,6 @@ import javax.persistence.*;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Test {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "test_id")
     Long testId;
 
@@ -23,6 +22,6 @@ public class Test {
     String testName;
 
     @ManyToOne
-    @JoinColumn(name = "discipline_name")
+    @JoinColumn(name = "discipline_name", referencedColumnName = "name")
     Discipline discipline;
 }

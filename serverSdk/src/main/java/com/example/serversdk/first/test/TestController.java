@@ -16,6 +16,11 @@ public class TestController {
         return testService.getTests(disciplineName);
     }
 
+    @GetMapping("/{disciplineName}/{testId}")
+    public TestDto getTestClaims(@PathVariable Long testId, @PathVariable String disciplineName) {
+        return testService.getTestClaims(testId);
+    }
+
     @PostMapping("/{disciplineName}")
     public void postTest(@PathVariable String disciplineName, @RequestBody TestRequest testRequest) {
         testService.createNewTest(testRequest);

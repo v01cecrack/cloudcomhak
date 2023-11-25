@@ -20,7 +20,7 @@ public class GroupController {
     }
 
     @PostMapping
-    public void postGroup(@RequestBody Group group) {
+    public void postGroup(@RequestBody GroupDto group) {
         groupService.postGroup(group);
     }
 

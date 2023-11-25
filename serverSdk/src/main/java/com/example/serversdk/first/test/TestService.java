@@ -11,8 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -34,13 +34,27 @@ public class TestService {
     }
 
     @Transactional
-    public void createNewTest (TestRequest testRequest) {
+    public void createNewTest(TestRequest testRequest) {
         Test test = testRequest.getTest();
         List<Question> questions = testRequest.getQuestions();
         List<Answer> answers = testRequest.getAnswers();
         testRepository.save(test);
         questionRepository.saveAll(questions);
         answerRepository.saveAll(answers);
+        testQuestionRepository.saveAll(questions.stream()
+                .map(question -> TestQuestion.builder().question(question).test(test).build())
+                .collect(Collectors.toList()));
         log.info("Создан тест с названием {}", test.getTestName());
+    }
+
+    public TestDto getTestClaims(Long testId) {
+        List<Question> questions = questionRepository.findAllById(testId);
+        List<Long> questionIds = questions.stream().map(Question::getId).collect(Collectors.toList());
+        List<Answer> answers = answerRepository.findAllByQuestion_IdIn(questionIds);
+        log.info("Отправлено содержимое теста c id {}", testId);
+        return TestDto.builder()
+                .questions(questions)
+                .answers(answers)
+                .build();
     }
 }

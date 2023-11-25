@@ -19,7 +19,7 @@ public class DisciplineController {
     }
 
     @PostMapping()
-    public void postDiscipline(@RequestBody Discipline discipline) {
+    public void postDiscipline(@RequestBody DisciplineDto discipline) {
         disciplineService.postDiscipline(discipline);
     }
 
@@ -32,6 +32,5 @@ public class DisciplineController {
     public void updateDiscipline(@PathVariable Long id, @RequestBody Discipline discipline) {
         disciplineService.updateDiscipline(id, discipline);
     }
-
 
 }
