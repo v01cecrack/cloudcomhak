@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .cors().and()
                 .authorizeRequests()
                 .antMatchers("/secured").authenticated()
-                .antMatchers("/disciplines").authenticated()
+//                .antMatchers("/disciplines").authenticated()
                 .antMatchers(("/admin")).hasRole("ADMIN")
                 .anyRequest().permitAll()
                 .and()

@@ -33,7 +33,6 @@ public class GroupService {
         groupRepository.save(groupDto.getGroup());
         List<Discipline> disciplines = groupDto.getDisciplines();
         if (disciplines.isEmpty()) {
-            disciplineRepository.saveAll(disciplines);
         }
         List<DisciplineGroup> disciplineGroups = disciplines.stream().map(discipline -> DisciplineGroup.builder()
                 .group(groupDto.getGroup()).discipline(discipline).build()).collect(Collectors.toList());

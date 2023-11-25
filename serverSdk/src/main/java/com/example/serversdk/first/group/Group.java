@@ -17,6 +17,6 @@ public class Group implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", unique = true, nullable = false, length = 50)
+    @Column(name = "name")
     private String name;
 }
