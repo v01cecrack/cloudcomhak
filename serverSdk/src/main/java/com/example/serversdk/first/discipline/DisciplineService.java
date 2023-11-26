@@ -60,12 +60,14 @@ public class DisciplineService {
         disciplineGroupRepository.deleteAllByDiscipline_Id(id);
         List<Test> tests = testRepository.findAllByDiscipline_Id(id);
         testQuestionRepository.deleteAllByTestIn(tests);
+        testRepository.deleteAllById(tests.stream().map(Test::getId).collect(Collectors.toList()));
         disciplineRepository.deleteById(id);
     }
 
     public void updateDiscipline(Long id, Discipline discipline) {
-        discipline.setId(id);
-        disciplineRepository.save(discipline);
+        Discipline existingDiscipline = disciplineRepository.findById(id).get();
+        existingDiscipline.setName(discipline.getName());
+        disciplineRepository.save(existingDiscipline);
         log.info("Обновлена дисциплина");
     }
 }

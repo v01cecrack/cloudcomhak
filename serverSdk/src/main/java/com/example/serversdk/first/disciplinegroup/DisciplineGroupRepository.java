@@ -14,4 +14,6 @@ public interface DisciplineGroupRepository extends JpaRepository<DisciplineGroup
     void deleteAllByGroup_Id(Long id);
 
     List<DisciplineGroup> findDisciplineGroupsByGroupIn(List<Group> groups);
+
+    List<DisciplineGroup> findDisciplineGroupsByDiscipline_Id(Long id);
 }

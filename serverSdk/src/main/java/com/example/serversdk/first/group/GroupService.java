@@ -57,8 +57,9 @@ public class GroupService {
     }
 
     public void updateGroup(long id, Group group) {
-        group.setId(id);
-        groupRepository.save(group);
+        Group oldGroup = groupRepository.findById(id).get();
+        oldGroup.setName(group.getName());
+        groupRepository.save(oldGroup);
         log.info("Группа изменена");
     }
 

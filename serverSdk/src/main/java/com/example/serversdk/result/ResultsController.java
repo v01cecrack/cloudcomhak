@@ -4,6 +4,7 @@ import com.example.serversdk.first.group.Group;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,15 +18,22 @@ import java.util.List;
 public class ResultsController {
     private final ResultService resultService;
 
-    @GetMapping()
+    @GetMapping("/disciplines")
     public ResponseEntity<?> getDisciplines(HttpServletRequest request) {
         return resultService.getDisciplines(request);
     }
 
 
 
-    @GetMapping()
-    public ResponseEntity<?> getGroups(HttpServletRequest request) {
-        return resultService.getGroups(request);
+    @GetMapping("{disciplineId}/groups")
+    public ResponseEntity<?> getGroups(@PathVariable Long disciplineId, HttpServletRequest request) {
+        return resultService.getGroups(request, disciplineId);
     }
+
+    @GetMapping("{disciplineId}/groups/{groupId}")
+    public ResponseEntity<?> getStats(@PathVariable Long groupId, @PathVariable Long disciplineId, HttpServletRequest request) {
+        return resultService.getStats(groupId, disciplineId, request);
+    }
+
+
 }
