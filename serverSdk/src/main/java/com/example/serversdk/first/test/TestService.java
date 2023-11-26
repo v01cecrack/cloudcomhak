@@ -52,14 +52,14 @@ public class TestService {
         List<AnswerDto> answerDtos = testRequest.getAnswers();
         answerDtos.forEach(answer -> answer.setCorrect(answer.getCorrect() != null ? answer.getCorrect() : false));
         List<Answer> answers = new ArrayList<>();
-        for (AnswerDto answerDto: answerDtos) {
+        for (AnswerDto answerDto : answerDtos) {
             answers.add(Answer.builder()
                     .id(answerDto.getId())
-                    .question(questionMap.get(answerDto.getId()))
+                    .answer(answerDto.getAnswer())
+                    .question(questionMap.get(answerDto.getQuestionId()))
                     .correct(answerDto.getCorrect())
                     .build());
         }
-//        answers.forEach(answer -> answer.setCorrect(answer.getCorrect() != null ? answer.getCorrect() : false));
         testRepository.save(test);
         questionRepository.saveAll(questions);
         answerRepository.saveAll(answers);
