@@ -5,6 +5,7 @@ import com.example.serversdk.auth.entities.User;
 import com.example.serversdk.auth.repositories.UserRepository;
 import com.example.serversdk.first.dtos.AdminDto;
 import com.example.serversdk.first.dtos.UserDto;
+import com.example.serversdk.first.group.Group;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,9 +24,11 @@ public class AdminService {
     }
 
     @Transactional
-    public void setTeacher(long id) {
+    public void setTeacher(long id, List<Group> groups) {
         User user = userRepository.findById(id).orElseThrow(RuntimeException::new);
         user.setRole(Roles.ROLE_TEACHER);
+        user.setGroups(groups);
+        userRepository.save(user);
     }
 
     public void deleteUser(long id) {

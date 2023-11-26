@@ -1,5 +1,6 @@
 package com.example.serversdk.first.disciplinegroup;
 
+import com.example.serversdk.first.group.Group;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -11,4 +12,6 @@ public interface DisciplineGroupRepository extends JpaRepository<DisciplineGroup
 
     void deleteAllByDiscipline_Id(Long id);
     void deleteAllByGroup_Id(Long id);
+
+    List<DisciplineGroup> findDisciplineGroupsByGroupIn(List<Group> groups);
 }
