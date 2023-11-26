@@ -23,6 +23,6 @@ public class Test {
     String testName;
 
     @ManyToOne
-    @JoinColumn(name = "discipline_id")
+    @JoinColumn(name = "discipline_name", referencedColumnName = "name")
     Discipline discipline;
 }

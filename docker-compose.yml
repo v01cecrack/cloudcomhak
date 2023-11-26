@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:13.7-alpine
+    container_name: db-sdk
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_DB=hahaton
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=iamroot
+    hostname: db-sdk
+    volumes:
+      - ./src/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+
+  server-sdk:
+    build:
+      context: ./serverSdk
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-sdk:5432/hahaton
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=iamroot
+
+  bot-sdk:
+    build:
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-sdk:5432/hahaton
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=iamroot
