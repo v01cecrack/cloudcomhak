@@ -11,7 +11,8 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RegistrationUserDto {
-    String username;
-    String password;
+    String fullname;
+    String description;
     String email;
+    String password;
 }

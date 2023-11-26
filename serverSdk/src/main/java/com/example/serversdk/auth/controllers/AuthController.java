@@ -43,7 +43,7 @@ public class AuthController {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
         } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(new AppError(HttpStatus.UNAUTHORIZED.value(), "неправильный логин или пароль"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new AppError(HttpStatus.UNAUTHORIZED.value(), "Неправильный логин или пароль"), HttpStatus.UNAUTHORIZED);
         }
         UserDetails userDetails = userService.loadUserByUsername(authRequest.getUsername());
         String token = jwtTokenUtils.generateToken(userDetails, response);
@@ -53,11 +53,12 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> createNewUser(@RequestBody RegistrationUserDto registrationUserDto) {
-        if (userService.findByUsername(registrationUserDto.getUsername()).isPresent()) {
-            return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(), "пользователь уже есть"), HttpStatus.BAD_REQUEST);
+        if (userService.findByUsername(registrationUserDto.getEmail()).isPresent()) {
+            return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(), "Пользователь уже есть"), HttpStatus.BAD_REQUEST);
         }
         User user = new User();
-        user.setUsername(registrationUserDto.getUsername());
+        user.setFullname(registrationUserDto.getFullname());
+        user.setDescription(registrationUserDto.getDescription());
         user.setEmail(registrationUserDto.getEmail());
         user.setPassword(passwordEncoder.encode(registrationUserDto.getPassword()));
         user.setRole(Roles.ROLE_USER);
@@ -67,14 +68,10 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
-        // Получите текущего аутентифицированного пользователя
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
-
-        // Удалите токен (например, через куки или заголовок)
-        // Ниже приведен пример для куков
         Cookie cookie = new Cookie("jwt", null);
         cookie.setMaxAge(0);
         cookie.setPath("/");

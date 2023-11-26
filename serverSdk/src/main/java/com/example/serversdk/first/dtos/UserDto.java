@@ -12,7 +12,9 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDto {
-    String username;
+    Long id;
+    String fullname;
+    String description;
     String email;
     Roles role;
 }

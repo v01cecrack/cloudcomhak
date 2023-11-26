@@ -12,10 +12,14 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends CrudRepository<User, Long> {
-    Optional<User> findByUsername(String username);
+    Optional<User> findByEmail(String username);
 
     void deleteByGroups_Id(Long groupId);
 
-    @Query("SELECT NEW com.example.serversdk.first.dtos.UserDto(U.username, U.email, U.role) from User U ")
+    void deleteUserById(Long id);
+
+    @Query("SELECT NEW com.example.serversdk.first.dtos.UserDto(U.id, U.fullname, U.description, U.email, U.role) from User U ")
     List<UserDto> getUsers();
+
+
 }
