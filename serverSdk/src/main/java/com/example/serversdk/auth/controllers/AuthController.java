@@ -63,7 +63,7 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(registrationUserDto.getPassword()));
         user.setRole(Roles.ROLE_USER);
         userRepository.save(user);
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PostMapping("/logout")

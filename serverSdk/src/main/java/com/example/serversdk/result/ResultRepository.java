@@ -31,7 +31,4 @@ public interface ResultRepository extends JpaRepository<Result, Long> {
             "GROUP BY U.chatId, U.surname, U.name, U.fatherName, T.testName")
     List<ResultDto> getGroupDisciplineResults(@Param("groupId") Long groupId, @Param("disciplineId") Long disciplineId);
 
-
-
-
 }

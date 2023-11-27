@@ -52,6 +52,12 @@ public class Bot extends TelegramLongPollingBot {
                         throw new RuntimeException();
                     }
                 }
+            } if(update.getMessage().getText().equals("/help")) {
+                try {
+                    execute(botService.helpMessage(chatId));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             if (botService.getUserDto().getState().equals("ZERO")) {
@@ -105,7 +111,7 @@ public class Bot extends TelegramLongPollingBot {
                 }
                 try {
                     execute(botService.statisticsByDiscipline(chatId, disciplineName));
-                    botService.getUserDto().setStateZero();   //TODO zero???
+                    botService.getUserDto().setStateZero();
                     return;
                 } catch (TelegramApiException e) {
                     throw new RuntimeException(e);

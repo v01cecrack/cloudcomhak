@@ -69,7 +69,8 @@ public class TestService {
         log.info("Создан тест с названием {}", test.getTestName());
     }
 
-    public TestDto getTestClaims(Long testId) {
+    public TestDto getTestClaims(String testName) {
+        Long testId = testRepository.findByTestName(testName).getId();
         List<Question> questions = questionRepository.findAllById(testId);
         List<Long> questionIds = questions.stream().map(Question::getId).collect(Collectors.toList());
         List<Answer> answers = answerRepository.findAllByQuestion_IdIn(questionIds);

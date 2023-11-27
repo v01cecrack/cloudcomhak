@@ -16,9 +16,9 @@ public class TestController {
         return testService.getTests(disciplineName);
     }
 
-    @GetMapping("/{disciplineName}/{testId}")
-    public TestDto getTestClaims(@PathVariable Long testId, @PathVariable String disciplineName) {
-        return testService.getTestClaims(testId);
+    @GetMapping("/{disciplineName}/{testName}")
+    public TestDto getTestClaims(@PathVariable String testName, @PathVariable String disciplineName) {
+        return testService.getTestClaims(testName);
     }
 
     @PostMapping("/{disciplineName}")

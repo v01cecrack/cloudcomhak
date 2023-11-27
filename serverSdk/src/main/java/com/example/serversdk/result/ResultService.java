@@ -38,6 +38,10 @@ public class ResultService {
 
     public ResponseEntity<?> getDisciplines(HttpServletRequest request) {
         User user = auth(request);
+        if (user.getRole().equals("ROLE_ADMIN") || user.getRole().equals("ROLE_SUPERADMIN")) {
+            List<Discipline> disciplines = disciplineRepository.findAll();
+            return ResponseEntity.ok(disciplines);
+        }
         List<Group> groups = userRepository.findGroupsByUserId(user.getId());
         if (!groups.isEmpty()) {
             List<DisciplineGroup> disciplineGroups = disciplineGroupRepository.findDisciplineGroupsByGroupIn(groups);
@@ -53,6 +57,10 @@ public class ResultService {
 
     public ResponseEntity<?> getGroups(HttpServletRequest request, String disciplineName) {
         User user = auth(request);
+        if (user.getRole().equals("ROLE_ADMIN") || user.getRole().equals("ROLE_SUPERADMIN")) {
+            List<Group> groups = groupRepository.findAll();
+            return ResponseEntity.ok(groups);
+        }
 //        List<Group> groups = userRepository.findGroupsByUserId(user.getId());
         List<Group> groups = disciplineGroupRepository.findDisciplineGroupsByDiscipline_Name(disciplineName)
                 .stream().map(DisciplineGroup::getGroup).collect(Collectors.toList());
@@ -90,6 +98,6 @@ public class ResultService {
                 }
             }
         }
-        return userRepository.findByEmail(username).orElseThrow(RuntimeException::new);
+        return userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("Юзер не найден"));
     }
 }

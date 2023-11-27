@@ -34,7 +34,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -93,6 +92,11 @@ public class BotService {
         return sendWelcomeMessage(chatId);
     }
 
+    public SendMessage helpMessage(long chatId) {
+        return sendTextMessage(chatId, "Инструкция \n Чтобы все было хорошо, нажимайте на кнопки когда выводятся кнопки" +
+                "\n Не отправляйте текст. \n Следуйте указаниям бота \n Если что то пошло не так, нажмите или напишите /start");
+    }
+
     public SendMessage disciplineMessage(long chatId) {
         userDto = UserMapper.toUserDto(userRepository.findById(chatId).orElseThrow(RuntimeException::new));
         List<DisciplineGroup> disciplineGroups = disciplineGroupRepository.findByGroup_Name(userDto.getGroup().getName());
@@ -113,23 +117,8 @@ public class BotService {
         if (resultRepository.findFirstByUserAndTest(UserMapper.toUser(userDto), test).isPresent()) {
             return sendTextMessage(chatId, "Тест можно пройти только 1 раз");
         }
-        // TODO поменять заполнение questionData
         List<Question> questionList = testQuestionRepository.findQuestionsByTestId(testId);
 
-//        List<QuestionData> questionDataList = new ArrayList<>();
-//        for (Question question : questionList) {
-//            List<String> wrongAnswers = new ArrayList<>();
-//            if (question.getIncorrectAnswer1() != null)
-//                wrongAnswers.add(question.getIncorrectAnswer1());
-//            if (question.getIncorrectAnswer2() != null)
-//                wrongAnswers.add(question.getIncorrectAnswer2());
-//            if (question.getIncorrectAnswer3() != null)
-//                wrongAnswers.add(question.getIncorrectAnswer3());
-//            if (question.getIncorrectAnswer4() != null)
-//                wrongAnswers.add(question.getIncorrectAnswer4());
-//            QuestionData questionData = new QuestionData(question.getQuestionText(), question.getQuestionAnswer(), wrongAnswers);
-//            questionDatas.add(questionData);
-//        }
 
         for (Question question: questionList) {
             Answer correctAnswer = answerRepository.findByQuestion_IdAndCorrectIsTrue(question.getId());
@@ -139,16 +128,6 @@ public class BotService {
             questionDatas.add(questionData);
         }
 
-//        List<String> questions = questionList.stream()
-//                .map(Question::getQuestionText)
-//                .collect(Collectors.toList());
-//
-//        List<String> answers = questionList.stream()
-//                .map(Question::getQuestionAnswer)
-//                .collect(Collectors.toList());
-
-        testData.setQuestions(questionDatas); //TODO delete useless testData unused really;
-//        testData.setCorrectAnswers(answers);
         return sendTextMessage(chatId, "Вы выбрали тест " + testName + " \n чтобы начать отправьте любой текст");
     }
 
@@ -182,14 +161,14 @@ public class BotService {
         userDto.setFatherName(text);
         List<University> universities = universityRepository.findAll();
         List<String> universitiesNames = universities.stream().map(University::getName).collect(Collectors.toList());
-        return sendGroupButtons(chatId, universitiesNames, "Выберите университет:"); //TODO переименовать метод на более общий
+        return sendButtons(chatId, universitiesNames, "Выберите университет:");
     }
 
     public SendMessage flagUniversity(long chatId, String universityName) {
         userDto.setUniversity(universityRepository.findByName(universityName));
         List<Group> groups = groupRepository.findAll();
         List<String> groupsNames = groups.stream().map(Group::getName).collect(Collectors.toList());
-        return sendGroupButtons(chatId, groupsNames, "Выберите свою группу:");
+        return sendButtons(chatId, groupsNames, "Выберите свою группу:");
     }
 
     public SendMessage flagTest(long chatId, String text) {
@@ -205,7 +184,7 @@ public class BotService {
                     List<String> answerOptions = questionDatas.get(testSession.getCurrentQuestion() - 1).getIncorrectAnswers();
                     answerOptions.add(questionDatas.get(testSession.getCurrentQuestion() - 1).getCorrectAnswer());
                     Collections.shuffle(answerOptions);
-                    return sendGroupButtons(chatId, answerOptions, questionDatas.get(testSession.getCurrentQuestion() - 1).getQuestionText());
+                    return sendButtons(chatId, answerOptions, questionDatas.get(testSession.getCurrentQuestion() - 1).getQuestionText());
                 }
             }
         }
@@ -381,11 +360,11 @@ public class BotService {
         return inlineKeyboardMarkup;
     }
 
-    private SendMessage sendGroupButtons(long chatId, List<String> groupNames, String text) { //TODO переименовать
+    private SendMessage sendButtons(long chatId, List<String> NameList, String text) {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(text);
-        InlineKeyboardMarkup keyboardMarkup = groupButtons(groupNames);
+        InlineKeyboardMarkup keyboardMarkup = groupButtons(NameList);
         message.setReplyMarkup(keyboardMarkup);
         return message;
     }

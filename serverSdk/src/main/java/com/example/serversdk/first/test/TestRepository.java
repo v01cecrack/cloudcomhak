@@ -13,5 +13,7 @@ public interface TestRepository extends JpaRepository<Test, Long> {
 
     List<Test> findAllByDiscipline_Id(Long id);
 
+    Test findByTestName(String testName);
+
 
 }
