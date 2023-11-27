@@ -6,6 +6,7 @@ import com.example.serversdk.first.dtos.UserDto;
 import com.example.serversdk.first.group.Group;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,8 +33,9 @@ public class AdminController {
         adminService.deleteUser(id);
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/superadmin/createadmin")
-    public void createAdmin(AdminDto adminDto) {
+    public void createAdmin(@RequestBody AdminDto adminDto) {
         adminService.createAdmin(adminDto);
     }
 
