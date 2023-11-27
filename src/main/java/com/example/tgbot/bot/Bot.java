@@ -59,14 +59,6 @@ public class Bot extends TelegramLongPollingBot {
                     throw new RuntimeException(e);
                 }
             }
-
-            if (botService.getUserDto().getState().equals("ZERO")) {
-                try {
-                    execute(botService.sendWelcomeMessage(chatId));
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException();
-                }
-            }
         }
         if (update.hasCallbackQuery()) {
             log.info("Пользователь {} нажал кнопку {}", update.getCallbackQuery().getFrom().getUserName(), update.getCallbackQuery().getData());
@@ -185,7 +177,7 @@ public class Bot extends TelegramLongPollingBot {
                     String text = update.getCallbackQuery().getData();
                     SendMessage sendMessage = botService.flagTest(chatId, text);
                     execute(sendMessage);
-                    String regex = "Вы ответили правильно на \\d+ из \\d+";
+                    String regex = "Вы ответили правильно на \\d+ из \\d+\\n Отправьте любой текст чтобы продолжить";
                     if (sendMessage.getText().matches(regex)) {
                         botService.getUserDto().setStateZero();
                     } else {
@@ -239,7 +231,7 @@ public class Bot extends TelegramLongPollingBot {
                     try {
                         SendMessage sendMessage = botService.flagTest(chatId, text);
                         execute(sendMessage);
-                        String regex = "Вы ответили правильно на \\d+ из \\d+";
+                        String regex = "Вы ответили правильно на \\d+ из \\d+\\n Отправьте любой текст чтобы продолжить";
                         if (sendMessage.getText().matches(regex)) {
                             botService.getUserDto().setStateZero();
                         } else {

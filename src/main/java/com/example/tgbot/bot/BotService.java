@@ -196,7 +196,7 @@ public class BotService {
                 correctQuestions++;
             }
         }
-        String textResult = "Вы ответили правильно на " + correctQuestions + " из " + questionCount;
+        String textResult = "Вы ответили правильно на " + correctQuestions + " из " + questionCount + "\n Отправьте любой текст чтобы продолжить";
         clearSession();
         return sendTextMessage(chatId, textResult);
     }
