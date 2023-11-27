@@ -41,6 +41,7 @@ com\example\serversdk\first\group\GroupController.class
 com\example\serversdk\first\discipline\DisciplineDto$DisciplineDtoBuilder.class
 com\example\serversdk\first\group\GroupService.class
 com\example\serversdk\first\questionAnswer\Question$QuestionBuilder.class
+com\example\serversdk\first\exception\ErrorResponse.class
 com\example\serversdk\first\dtos\ResultDto.class
 com\example\serversdk\first\user\Student.class
 com\example\serversdk\auth\AppError.class
@@ -63,5 +64,6 @@ com\example\serversdk\result\Result$ResultBuilder.class
 com\example\serversdk\first\admin\AdminService.class
 com\example\serversdk\first\test\Test.class
 com\example\serversdk\first\group\GroupDto$GroupDtoBuilder.class
+com\example\serversdk\first\exception\ErrorHandler.class
 com\example\serversdk\auth\utils\JwtTokenUtils.class
 com\example\serversdk\auth\dtos\JwtResponse.class
