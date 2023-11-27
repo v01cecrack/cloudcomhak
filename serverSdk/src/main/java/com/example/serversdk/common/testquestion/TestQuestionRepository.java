@@ -8,4 +8,6 @@ import java.util.List;
 public interface TestQuestionRepository extends JpaRepository<TestQuestion, Long> {
 
     void deleteAllByTestIn(List<Test> tests);
+
+    List<TestQuestion> findAllByTest(Test test);
 }

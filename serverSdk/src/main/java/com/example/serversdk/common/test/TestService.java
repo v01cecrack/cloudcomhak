@@ -11,6 +11,7 @@ import com.example.serversdk.common.testquestion.TestQuestion;
 import com.example.serversdk.common.testquestion.TestQuestionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,41 +48,62 @@ public class TestService {
             throw new ConflictException("Такое название уже есть");
         }
         test.setDiscipline(disciplineRepository.findByName(disciplineName).get());
+
         List<Question> questions = testRequest.getQuestions();
         Map<Long, Question> questionMap = new HashMap<>();
 
         for (Question question : questions) {
             questionMap.put(question.getId(), question);
         }
+
         List<AnswerDto> answerDtos = testRequest.getAnswers();
-        answerDtos.forEach(answer -> answer.setCorrect(answer.getCorrect() != null ? answer.getCorrect() : false));
+        answerDtos.forEach(answer -> answer.setCorrect(answer.getCorrect() != null && answer.getCorrect()));
+
         List<Answer> answers = new ArrayList<>();
         for (AnswerDto answerDto : answerDtos) {
             answers.add(Answer.builder()
-                    .id(answerDto.getId())
                     .answer(answerDto.getAnswer())
                     .question(questionMap.get(answerDto.getQuestionId()))
                     .correct(answerDto.getCorrect())
                     .build());
         }
-        testRepository.save(test);
+
+        // Сначала сохраняем вопросы
         questionRepository.saveAll(questions);
+
+        // Затем сохраняем ответы
         answerRepository.saveAll(answers);
-        testQuestionRepository.saveAll(questions.stream()
+
+        // Связываем тест с вопросами
+        List<TestQuestion> testQuestions = questions.stream()
                 .map(question -> TestQuestion.builder().question(question).test(test).build())
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+
+        testRepository.save(test);
+        testQuestionRepository.saveAll(testQuestions);
+
         log.info("Создан тест с названием {}", test.getTestName());
     }
 
-    public TestDto getTestClaims(String testName) {
-        Long testId = testRepository.findByTestName(testName).get().getId();
-        List<Question> questions = questionRepository.findAllById(testId);
-        List<Long> questionIds = questions.stream().map(Question::getId).collect(Collectors.toList());
+
+    public TestDto getTestClaims(Long testId) {
+        Test test = testRepository.findById(testId).get();
+        List<TestQuestion> testQuestions = testQuestionRepository.findAllByTest(test);
+
+        List<Long> questionIds = testQuestions.stream()
+                .map(testQuestion -> testQuestion.getQuestion().getId())
+                .collect(Collectors.toList());
+
+        List<Question> questions = questionRepository.findAllById(questionIds);
+
         List<Answer> answers = answerRepository.findAllByQuestion_IdIn(questionIds);
+
         log.info("Отправлено содержимое теста c id {}", testId);
+
         return TestDto.builder()
                 .questions(questions)
                 .answers(answers)
                 .build();
     }
+
 }

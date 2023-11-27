@@ -74,6 +74,7 @@ public class ResultService {
         Long groupId = groupRepository.findByName(groupName).get().getId();
         Long disciplineId = disciplineRepository.findByName(disciplineName).get().getId();
         List<ResultDto> resultDtos = resultRepository.getGroupDisciplineResults(groupId, disciplineId);
+
         List<ResultStatsDto> results = new ArrayList<>();
         for (ResultDto resultDto : resultDtos) {
             Double percentCorrectOfTest = (resultDto.getCorrectAnswers() * 100.0) / resultDto.getTotalAnswers();

@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .antMatchers("/disciplines/**").hasAnyRole("TEACHER", "ADMIN", "SUPERADMIN")
                 .antMatchers("/results/**").hasAnyRole("TEACHER", "ADMIN", "SUPERADMIN")
                 .antMatchers("/admin/**").hasAnyRole("ADMIN", "SUPERADMIN")
-                .antMatchers("/superadmin/**").hasRole("SUPERADMIN")
+                .antMatchers("/superadmin/**").hasAnyRole("SUPERADMIN")
                 .anyRequest().permitAll()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
