@@ -126,8 +126,8 @@ public class BotService {
             List<String> incorrectAnswers = answers.stream().map(Answer::getAnswer).collect(Collectors.toList());
             QuestionData questionData = new QuestionData(question.getQuestionText(), correctAnswer.getAnswer(), incorrectAnswers);
             questionDatas.add(questionData);
-            testData.setQuestions(questionDatas);
         }
+            testData.setQuestions(questionDatas);
 
         return sendTextMessage(chatId, "Вы выбрали тест " + testName + " \n чтобы начать отправьте любой текст");
     }
