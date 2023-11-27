@@ -4,11 +4,13 @@ import com.example.serversdk.auth.entities.User;
 import com.example.serversdk.auth.repositories.UserRepository;
 import com.example.serversdk.auth.utils.JwtTokenUtils;
 import com.example.serversdk.first.discipline.Discipline;
+import com.example.serversdk.first.discipline.DisciplineRepository;
 import com.example.serversdk.first.disciplinegroup.DisciplineGroup;
 import com.example.serversdk.first.disciplinegroup.DisciplineGroupRepository;
 import com.example.serversdk.first.dtos.ResultDto;
 import com.example.serversdk.first.dtos.ResultStatsDto;
 import com.example.serversdk.first.group.Group;
+import com.example.serversdk.first.group.GroupRepository;
 import com.example.serversdk.first.test.TestRepository;
 import com.example.serversdk.first.user.StudentRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,8 @@ public class ResultService {
     private final StudentRepository studentRepository;
     private final TestRepository testRepository;
     private final ResultRepository resultRepository;
+    private final GroupRepository groupRepository;
+    private final DisciplineRepository disciplineRepository;
 
     public ResponseEntity<?> getDisciplines(HttpServletRequest request) {
         User user = auth(request);
@@ -47,16 +51,18 @@ public class ResultService {
     }
 
 
-    public ResponseEntity<?> getGroups(HttpServletRequest request, Long disciplineId) {
+    public ResponseEntity<?> getGroups(HttpServletRequest request, String disciplineName) {
         User user = auth(request);
 //        List<Group> groups = userRepository.findGroupsByUserId(user.getId());
-        List<Group> groups = disciplineGroupRepository.findDisciplineGroupsByDiscipline_Id(disciplineId)
+        List<Group> groups = disciplineGroupRepository.findDisciplineGroupsByDiscipline_Name(disciplineName)
                 .stream().map(DisciplineGroup::getGroup).collect(Collectors.toList());
         return ResponseEntity.ok(groups);
     }
 
-    public ResponseEntity<?> getStats(Long groupId, Long disciplineId, HttpServletRequest request) {
+    public ResponseEntity<?> getStats(String groupName, String disciplineName, HttpServletRequest request) {
         User user = auth(request);
+        Long groupId = groupRepository.findByName(groupName).getId();
+        Long disciplineId = disciplineRepository.findByName(disciplineName).getId();
         List<ResultDto> resultDtos = resultRepository.getGroupDisciplineResults(groupId, disciplineId);
         List<ResultStatsDto> results = new ArrayList<>();
         for (ResultDto resultDto : resultDtos) {

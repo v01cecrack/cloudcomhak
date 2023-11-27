@@ -8,12 +8,13 @@ import java.util.List;
 
 @Scope(value = "prototype")
 public interface DisciplineGroupRepository extends JpaRepository<DisciplineGroup, Long> {
-    List<DisciplineGroup> findByGroup_Name(String groupName);
 
     void deleteAllByDiscipline_Id(Long id);
     void deleteAllByGroup_Id(Long id);
 
     List<DisciplineGroup> findDisciplineGroupsByGroupIn(List<Group> groups);
 
-    List<DisciplineGroup> findDisciplineGroupsByDiscipline_Id(Long id);
+    List<DisciplineGroup> findDisciplineGroupsByDiscipline_Name(String disciplineName);
+
+
 }

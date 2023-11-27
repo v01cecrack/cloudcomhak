@@ -8,6 +8,4 @@ import java.util.List;
 public interface DisciplineRepository extends JpaRepository<Discipline, Long> {
     Discipline findByName(String name);
 
-    List<Discipline> findAllByIdIn(List<Long> ids);
-
 }

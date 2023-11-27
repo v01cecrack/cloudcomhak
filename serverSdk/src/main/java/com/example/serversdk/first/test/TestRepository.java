@@ -8,7 +8,6 @@ import java.util.List;
 
 @Scope(value = "prototype")
 public interface TestRepository extends JpaRepository<Test, Long> {
-    Test findByTestName(String testName);
 
     List<Test> findTestsByDisciplineName(@Param("disciplineName") String disciplineName);
 

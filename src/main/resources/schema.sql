@@ -85,7 +85,70 @@ CREATE TABLE Users_Groups
 
 INSERT INTO Users (fullname, description, password, email, role)
 VALUES ('superadmin', 'superadmin', '$2a$04$Fx/SX9.BAvtPlMyIIqqFx.hLY2Xp8nnhpzvEEVINvVpwIPbA3v/.i',
-        'superadmin@mail.ru', 'ROLE_SUPERADMIN')
+        'superadmin', 'ROLE_SUPERADMIN');
+
+INSERT INTO Universities(id, name)
+VALUES (1, 'Университет "Дубна"');
+
+-- Groups
+INSERT INTO Groups (name) VALUES
+                              ('Group A'),
+                              ('Group B'),
+                              ('Group C');
+
+-- Universities
+INSERT INTO Universities (name) VALUES
+                                    ('University of Dubna'),
+                                    ('Another University');
+
+-- Students
+INSERT INTO Students (chat_id, name, surname, father_name, university_name, group_name) VALUES
+                                                                                            (123456, 'John', 'Doe', 'Father Doe', 'University of Dubna', 'Group A'),
+                                                                                            (789012, 'Jane', 'Smith', 'Father Smith', 'Another University', 'Group B'),
+                                                                                            (345678, 'Bob', 'Johnson', 'Father Johnson', 'University of Dubna', 'Group C');
+
+INSERT INTO Disciplines (name) VALUES
+                                   ('Mathematics'),
+                                   ('Physics'),
+                                   ('Computer Science');
+
+INSERT INTO Tests (test_name, discipline_name) VALUES
+                                                   ('Math Test 1', 'Mathematics'),
+                                                   ('Physics Test 1', 'Physics'),
+                                                   ('Programming Test 1', 'Computer Science');
+
+INSERT INTO Discipline_Groups (discipline_id, group_id) VALUES
+                                                            (1, 1),
+                                                            (2, 2),
+                                                            (3, 3);
+
+INSERT INTO Questions (question_text) VALUES
+                                          ('What is 2 + 2?'),
+                                          ('What is the capital of France?'),
+                                          ('What is the main programming language in this course?');
+
+INSERT INTO Answers (question_id, answer, correct) VALUES
+                                                       (1, '4', TRUE),
+                                                       (1, '5', FALSE),
+                                                       (2, 'Paris', TRUE),
+                                                       (2, 'Berlin', FALSE),
+                                                       (3, 'Java', TRUE),
+                                                       (3, 'Python', FALSE);
+
+INSERT INTO Test_Questions (test_id, question_id) VALUES
+                                                      (1, 1),
+                                                      (2, 2),
+                                                      (3, 3);
+
+INSERT INTO Results (user_id, test_id, question_id, answer) VALUES
+                                                                (123456, 1, 1, '4'),
+                                                                (789012, 2, 2, 'Paris'),
+                                                                (345678, 3, 3, 'Java');
+
+INSERT INTO Users_Groups (group_id, user_id) VALUES
+                                                 (1, 1),
+                                                 (2, 2),
+                                                 (3, 3);
 
 
 

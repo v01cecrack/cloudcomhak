@@ -25,14 +25,14 @@ public class ResultsController {
 
 
 
-    @GetMapping("{disciplineId}/groups")
-    public ResponseEntity<?> getGroups(@PathVariable Long disciplineId, HttpServletRequest request) {
-        return resultService.getGroups(request, disciplineId);
+    @GetMapping("/{disciplineName}/groups")
+    public ResponseEntity<?> getGroups(@PathVariable String disciplineName, HttpServletRequest request) {
+        return resultService.getGroups(request, disciplineName);
     }
 
-    @GetMapping("{disciplineId}/groups/{groupId}")
-    public ResponseEntity<?> getStats(@PathVariable Long groupId, @PathVariable Long disciplineId, HttpServletRequest request) {
-        return resultService.getStats(groupId, disciplineId, request);
+    @GetMapping("/{disciplineName}/groups/{groupName}")
+    public ResponseEntity<?> getStats(@PathVariable String groupName, @PathVariable String disciplineName, HttpServletRequest request) {
+        return resultService.getStats(groupName, disciplineName, request);
     }
 
 
