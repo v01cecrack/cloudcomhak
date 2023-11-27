@@ -16,6 +16,7 @@ import com.example.serversdk.first.user.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
@@ -98,6 +99,6 @@ public class ResultService {
                 }
             }
         }
-        return userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("Юзер не найден"));
+        return userRepository.findByEmail(username).orElseThrow(()-> new UsernameNotFoundException("У вас нет доступа;("));
     }
 }

@@ -15,8 +15,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GroupController {
     private final GroupService groupService;
-    private final StudentRepository studentRepository;
-    private final UserRepository userRepository;
 
     @GetMapping
     public List<Group> getGroups() {

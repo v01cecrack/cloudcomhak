@@ -6,16 +6,11 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import javax.validation.Valid;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
-import javax.persistence.CascadeType;
 import java.util.Collection;
 
 @Entity
 @Data
 @Table(name = "Users")
-@Valid
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,18 +18,15 @@ public class User {
     private Long id;
 
     @Column(name = "fullname")
-    @NotEmpty
     private String fullname;
 
     @Column(name = "description")
     private String description;
 
     @Column(name = "password")
-    @NotEmpty
     private String password;
 
     @Column(name = "email")
-    @Email
     private String email;
 
     @Enumerated(EnumType.STRING)
