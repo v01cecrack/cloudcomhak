@@ -1,5 +1,6 @@
 package com.example.serversdk.result;
 
+import com.example.serversdk.auth.entities.Roles;
 import com.example.serversdk.auth.entities.User;
 import com.example.serversdk.auth.repositories.UserRepository;
 import com.example.serversdk.auth.utils.JwtTokenUtils;
@@ -39,7 +40,7 @@ public class ResultService {
 
     public ResponseEntity<?> getDisciplines(HttpServletRequest request) {
         User user = auth(request);
-        if (user.getRole().equals("ROLE_ADMIN") || user.getRole().equals("ROLE_SUPERADMIN")) {
+        if (user.getRole().equals(Roles.ROLE_ADMIN) || user.getRole().equals(Roles.ROLE_SUPERADMIN)) {
             List<Discipline> disciplines = disciplineRepository.findAll();
             return ResponseEntity.ok(disciplines);
         }
@@ -58,7 +59,7 @@ public class ResultService {
 
     public ResponseEntity<?> getGroups(HttpServletRequest request, String disciplineName) {
         User user = auth(request);
-        if (user.getRole().equals("ROLE_ADMIN") || user.getRole().equals("ROLE_SUPERADMIN")) {
+        if (user.getRole().equals(Roles.ROLE_ADMIN) || user.getRole().equals(Roles.ROLE_SUPERADMIN)) {
             List<Group> groups = groupRepository.findAll();
             return ResponseEntity.ok(groups);
         }
