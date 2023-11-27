@@ -42,14 +42,14 @@ public class Bot extends TelegramLongPollingBot {
                         botService.getUserDto().setStateStart();
                         return;
                     } catch (TelegramApiException e) {
-                        throw new RuntimeException();
+                        throw new RuntimeException(e.getMessage());
                     }
                 } else {
                     try {
                         execute(botService.sendWelcome(chatId));
                         return;
                     } catch (TelegramApiException e) {
-                        throw new RuntimeException();
+                        throw new RuntimeException(e.getMessage());
                     }
                 }
             } if(update.getMessage().getText().equals("/help")) {
@@ -69,7 +69,7 @@ public class Bot extends TelegramLongPollingBot {
                     botService.getUserDto().setStateDiscipline();
                     return;
                 } catch (TelegramApiException e) {
-                    throw new RuntimeException();
+                    throw new RuntimeException(e.getMessage());
                 }
             }
             if (update.getCallbackQuery().getData().equals("statistics")) {
@@ -117,7 +117,7 @@ public class Bot extends TelegramLongPollingBot {
                         execute(botService.sendWelcomeMessage(chatId));
                         return;
                     } catch (TelegramApiException e) {
-                        throw new RuntimeException(e);
+                        throw new RuntimeException(e.getMessage());
                     }
                 }
                 try {
@@ -137,7 +137,7 @@ public class Bot extends TelegramLongPollingBot {
                         botService.getUserDto().setStateDiscipline();
                         return;
                     } catch (TelegramApiException e) {
-                        throw new RuntimeException();
+                        throw new RuntimeException(e.getMessage());
                     }
                 }
                 try {
@@ -147,7 +147,7 @@ public class Bot extends TelegramLongPollingBot {
                         botService.getUserDto().setStateTest();
                     }
                 } catch (TelegramApiException e) {
-                    throw new RuntimeException();
+                    throw new RuntimeException(e.getMessage());
                 }
                 return;
             }
@@ -168,7 +168,7 @@ public class Bot extends TelegramLongPollingBot {
                     execute(botService.saveUser(chatId, groupName));
                     return;
                 } catch (TelegramApiException e) {
-                    throw new RuntimeException();
+                    throw new RuntimeException(e.getMessage());
                 }
             }
 
@@ -184,7 +184,7 @@ public class Bot extends TelegramLongPollingBot {
                         return;
                     }
                 } catch (TelegramApiException e) {
-                    throw new RuntimeException();
+                    throw new RuntimeException(e.getMessage());
                 }
             }
 
@@ -201,7 +201,7 @@ public class Bot extends TelegramLongPollingBot {
                         botService.getUserDto().setStateName();
                         break;
                     } catch (TelegramApiException e) {
-                        throw new RuntimeException();
+                        throw new RuntimeException(e.getMessage());
                     }
                 case "NAME":
                     try {
@@ -209,7 +209,7 @@ public class Bot extends TelegramLongPollingBot {
                         botService.getUserDto().setStateSurname();
                         break;
                     } catch (TelegramApiException e) {
-                        throw new RuntimeException();
+                        throw new RuntimeException(e.getMessage());
                     }
                 case "SURNAME":
                     try {
@@ -217,7 +217,7 @@ public class Bot extends TelegramLongPollingBot {
                         botService.getUserDto().setStateFatherName();
                         break;
                     } catch (TelegramApiException e) {
-                        throw new RuntimeException();
+                        throw new RuntimeException(e.getMessage());
                     }
                 case "FATHERNAME":
                     try {
@@ -225,7 +225,7 @@ public class Bot extends TelegramLongPollingBot {
                         botService.getUserDto().setStateUniversity();
                         break;
                     } catch (TelegramApiException e) {
-                        throw new RuntimeException(e);
+                        throw new RuntimeException(e.getMessage());
                     }
                 case "TEST":
                     try {
@@ -238,21 +238,21 @@ public class Bot extends TelegramLongPollingBot {
                             break;
                         }
                     } catch (TelegramApiException e) {
-                        throw new RuntimeException();
+                        throw new RuntimeException(e.getMessage());
                     }
                 case "ZERO":
                     try {
                         execute(botService.sendWelcomeMessage(chatId));
                         break;
                     } catch (TelegramApiException e) {
-                        throw new RuntimeException();
+                        throw new RuntimeException(e.getMessage());
                     }
                 default:
                     try {
                         execute(botService.sendTextMessage(chatId, "Неизвестная команда"));
                         break;
                     } catch (TelegramApiException e) {
-                        throw new RuntimeException();
+                        throw new RuntimeException(e.getMessage());
                     }
             }
         }

@@ -1,6 +1,6 @@
 package com.example.serversdk.auth.entities;
 
-import com.example.serversdk.first.group.Group;
+import com.example.serversdk.common.group.Group;
 import lombok.Data;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
