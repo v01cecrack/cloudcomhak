@@ -22,10 +22,10 @@ public class DisciplineGroup {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "discipline_group_id")
     Long id;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "discipline_id")
     private Discipline discipline;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
     private Group group;
 }

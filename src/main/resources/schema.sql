@@ -83,8 +83,8 @@ CREATE TABLE IF NOT EXISTS Users_Groups
     user_id  BIGINT REFERENCES Users (id) ON DELETE CASCADE
 );
 
-INSERT INTO Users (id,fullname, description, password, email, role)
-VALUES (1000,'superadmin', 'superadmin', '$2a$04$Fx/SX9.BAvtPlMyIIqqFx.hLY2Xp8nnhpzvEEVINvVpwIPbA3v/.i',
+INSERT INTO Users (fullname, description, password, email, role)
+VALUES ('superadmin', 'superadmin', '$2a$04$Fx/SX9.BAvtPlMyIIqqFx.hLY2Xp8nnhpzvEEVINvVpwIPbA3v/.i',
         'superadmin', 'ROLE_SUPERADMIN');
 
 INSERT INTO Universities(id, name)
