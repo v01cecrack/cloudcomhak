@@ -88,47 +88,47 @@ VALUES ('superadmin', 'superadmin', '$2a$04$Fx/SX9.BAvtPlMyIIqqFx.hLY2Xp8nnhpzvE
         'superadmin', 'ROLE_SUPERADMIN');
 
 INSERT INTO Universities(id, name)
-VALUES (1, 'Университет "Дубна"');
+VALUES (1000, 'Университет "Дубна"');
 
 INSERT INTO Groups(id, name)
-VALUES (1, '4253'),
-       (2, '4254'),
-       (3, '4255');
+VALUES (1000, '4253'),
+       (2000, '4254'),
+       (3000, '4255');
 INSERT INTO Disciplines (id, name)
-VALUES (1, 'Mathematics'),
-       (2, 'Physics'),
-       (3, 'Computer Science');
+VALUES (1000, 'Mathematics'),
+       (2000, 'Physics'),
+       (3000, 'Computer Science');
 INSERT INTO Discipline_Groups (discipline_group_id, discipline_id, group_id)
-VALUES (1, 1, 1),
-       (2, 2, 1),
-       (3, 2, 2),
-       (4, 1, 2),
-       (5, 3, 3),
-       (6, 3, 1),
-       (7, 3, 2),
-       (8, 2, 3);
+VALUES (1000, 1000, 1000),
+       (2000, 2000, 1000),
+       (3000, 2000, 2000),
+       (4000, 1000, 2000),
+       (5000, 3000, 3000),
+       (6000, 3000, 1000),
+       (7000, 3000, 2000),
+       (8000, 2000, 3000);
 
 INSERT INTO Tests (test_id, test_name, discipline_name)
-VALUES (1, 'Math Test 1', 'Mathematics'),
-       (2, 'Physics Test 1', 'Physics'),
-       (3, 'Programming Test 1', 'Computer Science');
+VALUES (1000, 'Math Test 1', 'Mathematics'),
+       (2000, 'Physics Test 1', 'Physics'),
+       (3000, 'Programming Test 1', 'Computer Science');
 INSERT INTO Questions (id, question_text)
-VALUES (1, 'What is 2 + 2?'),
-       (2, 'What is the capital of France?'),
-       (3, 'What is the main programming language in this course?');
+VALUES (1000, 'What is 2 + 2?'),
+       (2000, 'What is the capital of France?'),
+       (3000, 'What is the main programming language in this course?');
 INSERT INTO Answers (id, question_id, answer, correct)
-VALUES (1, 1, '4', TRUE),
-       (2, 1, '5', FALSE),
-       (3, 2, 'Paris', TRUE),
-       (4, 3, 'Java', TRUE),
-       (5, 3, 'Python', FALSE);
+VALUES (1000, 1000, '4', TRUE),
+       (2000, 1000, '5', FALSE),
+       (3000, 2000, 'Paris', TRUE),
+       (4000, 3000, 'Java', TRUE),
+       (5000, 3000, 'Python', FALSE);
 INSERT INTO Test_Questions (id, test_id, question_id)
-VALUES (1, 1, 1),
-       (2, 1, 2),
-       (3, 2, 1),
-       (4, 2, 3),
-       (5, 3, 2),
-       (6, 1, 3);
+VALUES (1000, 1000, 1000),
+       (2000, 1000, 2000),
+       (3000, 2000, 1000),
+       (4000, 2000, 3000),
+       (5000, 3000, 2000),
+       (6000, 1000, 3000);
 
 
 
