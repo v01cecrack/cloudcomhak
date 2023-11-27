@@ -11,3 +11,5 @@
 #### git clone https://github.com/s211ergei1907/hakaton2023.git
 #### npm i
 #### npm start
+
+##### для связи - https://t.me/v01cecrack
