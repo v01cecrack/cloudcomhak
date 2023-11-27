@@ -2,5 +2,5 @@
 ### **_Инструкция по развертыванию проекта:_**
 1. [x] скачать данный репозиторий
 2. [x] docker-compose up
-3. https://t.me/v01cecrack_bot - bot
-4. данные суперадмина на сайте: login - superadmin, password - 100
+  #### [Telegram-bot](https://t.me/v01cecrack_bot)
+#### данные суперадмина на сайте: login - *superadmin*, password - *100*
