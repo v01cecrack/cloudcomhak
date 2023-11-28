@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -34,8 +35,8 @@ public class AdminController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/superadmin/createadmin")
-    public void createAdmin(@RequestBody AdminDto adminDto) {
-        adminService.createAdmin(adminDto);
+    public void createAdmin(@RequestBody AdminDto adminDto, HttpServletRequest request) {
+        adminService.createAdmin(adminDto, request);
     }
 
 

@@ -10,6 +10,7 @@ import com.example.serversdk.common.disciplinegroup.DisciplineGroup;
 import com.example.serversdk.common.disciplinegroup.DisciplineGroupRepository;
 import com.example.serversdk.common.dtos.ResultDto;
 import com.example.serversdk.common.dtos.ResultStatsDto;
+import com.example.serversdk.common.exception.ForbiddenException;
 import com.example.serversdk.common.group.Group;
 import com.example.serversdk.common.group.GroupRepository;
 import com.example.serversdk.common.test.TestRepository;
@@ -90,7 +91,7 @@ public class ResultService {
 
     }
 
-    private User auth(HttpServletRequest request) {
+    public User auth(HttpServletRequest request) {
         String username = null;
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
@@ -101,6 +102,6 @@ public class ResultService {
                 }
             }
         }
-        return userRepository.findByEmail(username).orElseThrow(()-> new UsernameNotFoundException("У вас нет доступа;("));
+        return userRepository.findByEmail(username).orElseThrow(()-> new ForbiddenException("У вас нет доступа;("));
     }
 }
