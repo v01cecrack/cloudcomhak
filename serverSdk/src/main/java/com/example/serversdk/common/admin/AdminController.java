@@ -27,7 +27,6 @@ public class AdminController {
         adminService.setTeacher(id, groups);
     }
 
-
     @DeleteMapping("/admin/{id}")
     public void deleteUser(@PathVariable long id) {
         adminService.deleteUser(id);
