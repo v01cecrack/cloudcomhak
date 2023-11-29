@@ -31,11 +31,14 @@ public class AdminService {
     }
 
     @Transactional
-    public void setTeacher(long id, List<Group> groups) {
+    public void setTeacher(long id) {
         User user = userRepository.findById(id).orElseThrow(RuntimeException::new);
+        if (user.getRole().equals(Roles.ROLE_SUPERADMIN) || user.getRole().equals(Roles.ROLE_ADMIN)) {
+            throw new ConflictException("Нельзя стать учителем админу");
+        }
         user.setRole(Roles.ROLE_TEACHER);
-        user.setGroups(groups);
         userRepository.save(user);
+        log.info("Новый учитель {}", user.getFullname());
     }
 
     @Transactional

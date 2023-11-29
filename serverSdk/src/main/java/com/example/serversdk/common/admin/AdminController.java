@@ -22,9 +22,9 @@ public class AdminController {
         return adminService.getUsers();
     }
 
-    @PatchMapping("/admin/teacher/{id}")
-    public void setTeacher(@PathVariable long id,@RequestBody List<Group> groups) {
-        adminService.setTeacher(id, groups);
+    @PostMapping("/admin/teacher/{id}")
+    public void setTeacher(@PathVariable long id) {
+        adminService.setTeacher(id);
     }
 
     @DeleteMapping("/admin/{id}")
