@@ -18,7 +18,7 @@ public class TestController {
     }
 
     @GetMapping("/{disciplineName}/{testId}")
-    public TestDto getTestClaims(@PathVariable Long testId, @PathVariable String disciplineName) {
+    public TestRequest getTestClaims(@PathVariable Long testId, @PathVariable String disciplineName) {
         return testService.getTestClaims(testId);
     }
 

@@ -11,7 +11,6 @@ import com.example.serversdk.common.testquestion.TestQuestion;
 import com.example.serversdk.common.testquestion.TestQuestionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,7 +85,7 @@ public class TestService {
     }
 
 
-    public TestDto getTestClaims(Long testId) {
+    public TestRequest getTestClaims(Long testId) {
         Test test = testRepository.findById(testId).get();
         List<TestQuestion> testQuestions = testQuestionRepository.findAllByTest(test);
 
@@ -97,12 +96,23 @@ public class TestService {
         List<Question> questions = questionRepository.findAllById(questionIds);
 
         List<Answer> answers = answerRepository.findAllByQuestion_IdIn(questionIds);
+        List<AnswerDto> answerDtos = answers.stream().map(TestService::mapToAnswerDto).collect(Collectors.toList());
 
         log.info("Отправлено содержимое теста c id {}", testId);
 
-        return TestDto.builder()
+        return TestRequest.builder()
+                .test(test)
                 .questions(questions)
-                .answers(answers)
+                .answers(answerDtos)
+                .build();
+    }
+
+    private static AnswerDto mapToAnswerDto(Answer answer) {
+        return AnswerDto.builder()
+                .id(answer.getId())
+                .answer(answer.getAnswer())
+                .questionId(answer.getQuestion().getId())
+                .correct(answer.getCorrect())
                 .build();
     }
 

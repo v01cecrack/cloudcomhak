@@ -47,6 +47,7 @@ com\example\serversdk\common\result\Result$ResultBuilder.class
 com\example\serversdk\auth\entities\User.class
 com\example\serversdk\auth\config\SecurityConfig.class
 com\example\serversdk\common\test\Test.class
+com\example\serversdk\common\dtos\AnswerDto$AnswerDtoBuilder.class
 com\example\serversdk\common\user\StudentRepository.class
 com\example\serversdk\common\exception\UnauthorizedError.class
 com\example\serversdk\common\disciplinegroup\DisciplineGroupRepository.class
@@ -61,6 +62,7 @@ com\example\serversdk\common\test\TestDto.class
 com\example\serversdk\common\group\GroupDto$GroupDtoBuilder.class
 com\example\serversdk\common\university\UniversityRepository.class
 com\example\serversdk\common\test\TestController.class
+com\example\serversdk\common\test\TestRequest$TestRequestBuilder.class
 com\example\serversdk\common\result\ResultRepository.class
 com\example\serversdk\common\discipline\DisciplineDto.class
 com\example\serversdk\common\admin\AdminController.class
