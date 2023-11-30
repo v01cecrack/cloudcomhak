@@ -63,4 +63,5 @@ public class AdminService {
         userRepository.save(admin);
         log.info("Создан админ {}", adminDto.getEmail());
     }
+
 }

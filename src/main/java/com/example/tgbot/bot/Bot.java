@@ -52,7 +52,8 @@ public class Bot extends TelegramLongPollingBot {
                         throw new RuntimeException(e.getMessage());
                     }
                 }
-            } if(update.getMessage().getText().equals("/help")) {
+            }
+            if (update.getMessage().getText().equals("/help")) {
                 try {
                     execute(botService.helpMessage(chatId));
                 } catch (Exception e) {
